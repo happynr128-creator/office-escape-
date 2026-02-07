@@ -2,392 +2,209 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>2024_분기별_시장_점유율_데이터_시뮬레이션_v3.2.xlsx</title>
+    <title>2024년_청년정책_추진계획_및_실행안.hwp</title>
     <style>
-        /* 엑셀 기본 스타일 */
-        body { margin: 0; font-family: 'Malgun Gothic', 'Segoe UI', sans-serif; background: #fff; color: #333; font-size: 11px; overflow: hidden; user-select: none; }
-        .excel-top { background: #217346; color: white; padding: 4px 12px; font-size: 12px; display: flex; justify-content: space-between; align-items: center; }
-        .excel-ribbon { background: #f3f3f3; border-bottom: 1px solid #bbb; padding: 6px 15px; display: flex; gap: 15px; color: #444; border-top: 1px solid #ddd; }
-        .formula-bar { border-bottom: 1px solid #bbb; padding: 3px 10px; display: flex; align-items: center; background: #fff; height: 22px; }
-        .address-box { border-right: 1px solid #ddd; padding-right: 15px; margin-right: 10px; color: #666; font-weight: bold; }
-
-        /* 게임 보드 영역 */
-        .sheet-area { padding: 0; height: calc(100vh - 120px); overflow: auto; display: flex; justify-content: center; align-items: flex-start; padding-top: 20px;}
+        /* 한글(HWP) 프로그램 배경 및 폰트 */
+        body { margin: 0; background-color: #f0f0f0; font-family: 'Malgun Gothic', 'Dotum', sans-serif; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
         
-        /* 2048 게임판 */
+        /* 상단 툴바 */
+        .hwp-header { background-color: #cde4ff; border-bottom: 1px solid #a3c2e8; padding: 5px 15px; flex-shrink: 0; }
+        .hwp-menu { display: flex; gap: 18px; font-size: 12px; color: #004695; margin-bottom: 4px; cursor: default; }
+        .hwp-tools { display: flex; gap: 8px; align-items: center; background: #eef5ff; padding: 4px; border: 1px solid #bed6f3; }
+        .tool-icon { width: 20px; height: 20px; background: #fff; border: 1px solid #a3c2e8; }
+
+        /* A4 용지 레이아웃 */
+        .viewport { flex-grow: 1; overflow-y: auto; display: flex; justify-content: center; padding: 40px 0; }
+        .a4-page { width: 800px; min-height: 1100px; background: white; box-shadow: 0 0 15px rgba(0,0,0,0.15); padding: 80px 90px; box-sizing: border-box; }
+
+        /* 보고서 텍스트 */
+        h1 { font-size: 26px; text-align: center; margin-bottom: 50px; font-weight: bold; color: #000; letter-spacing: -1px; }
+        h2 { font-size: 17px; margin-top: 35px; margin-bottom: 15px; font-weight: bold; border-left: 6px solid #1a5ea9; padding-left: 12px; }
+        p { font-size: 13.5px; line-height: 1.9; color: #222; margin-bottom: 15px; text-align: justify; }
+
+        /* 2048 게임판 (통계 표 위장) */
+        .table-container { margin: 30px auto; width: fit-content; text-align: center; }
+        .table-title { font-size: 11px; color: #555; margin-bottom: 6px; text-align: right; }
+        
         #game-board {
             display: grid;
-            grid-template-columns: repeat(4, 90px);
-            grid-template-rows: repeat(4, 90px);
-            gap: 1px; /* 엑셀 셀 사이 간격처럼 보이게 */
-            background-color: #d8d8d8; /* 엑셀 그리드 배경색 */
-            border: 1px solid #bbb;
-            box-shadow: 2px 2px 8px rgba(0,0,0,0.1);
-            position: relative;
-            z-index: 10;
+            grid-template-columns: repeat(4, 55px);
+            grid-template-rows: repeat(4, 55px);
+            background-color: #666; /* 표 테두리선 */
+            border: 2px solid #333;
+            gap: 1px;
         }
 
         .grid-cell {
-            width: 90px;
-            height: 90px;
-            background-color: #fcfcfc; /* 빈 엑셀 셀 */
-            border: 1px solid #ddd; /* 셀 테두리 */
+            width: 55px;
+            height: 55px;
+            background-color: #fff;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 24px;
+            font-size: 11px; /* 숫자 크기 대폭 축소 */
             font-weight: bold;
-            color: #4a4a4a; /* 숫자 색상 */
-            font-family: 'Arial', sans-serif; /* 숫자 폰트 */
-            position: relative;
-            transition: transform 0.1s ease-in-out, background-color 0.1s ease-in-out;
+            color: #333;
+            transition: background 0.1s;
         }
 
-        /* 2048 타일 색상 (엑셀 보고서처럼 보이게 톤 다운) */
-        .grid-cell[data-value="2"] { background-color: #eaf1f1; color: #4a4a4a; }
-        .grid-cell[data-value="4"] { background-color: #dbebe6; color: #4a4a4a; }
-        .grid-cell[data-value="8"] { background-color: #c7e0d3; color: #4a4a4a; }
-        .grid-cell[data-value="16"] { background-color: #b0d4c0; color: #4a4a4a; }
-        .grid-cell[data-value="32"] { background-color: #92c9aa; color: #4a4a4a; }
-        .grid-cell[data-value="64"] { background-color: #72bd94; color: white; }
-        .grid-cell[data-value="128"] { background-color: #51b27f; color: white; }
-        .grid-cell[data-value="256"] { background-color: #30a769; color: white; }
-        .grid-cell[data-value="512"] { background-color: #217346; color: white; }
-        .grid-cell[data-value="1024"] { background-color: #175434; color: white; }
-        .grid-cell[data-value="2048"] { background-color: #0f3621; color: white; }
+        /* 위장을 위해 타일 색상을 거의 통일 (아주 미세한 회색조 차이만 둠) */
+        .grid-cell[data-value="2"] { background-color: #ffffff; }
+        .grid-cell[data-value="4"] { background-color: #fafafa; }
+        .grid-cell[data-value="8"] { background-color: #f5f5f5; }
+        .grid-cell[data-value="16"] { background-color: #f0f0f0; }
+        .grid-cell[data-value="32"] { background-color: #ebebeb; }
+        .grid-cell[data-value="64"] { background-color: #e6e6e6; }
+        .grid-cell[data-value="128"] { background-color: #e1e1e1; border: 1px inset #ddd; }
+        .grid-cell[data-value="256"] { background-color: #dcdcdc; font-size: 10px; }
+        .grid-cell[data-value="512"] { background-color: #d7d7d7; color: #000; }
+        .grid-cell[data-value="1024"] { background-color: #d2d2d2; text-decoration: underline; }
+        .grid-cell[data-value="2048"] { background-color: #cde4ff; color: #004695; }
 
-        /* 게임 오버/승리 메시지 */
-        #game-overlay {
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(255, 255, 255, 0.85);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            font-size: 28px;
-            font-weight: bold;
-            color: #e04e4e;
-            z-index: 20;
-            display: none;
-            text-align: center;
-            line-height: 1.5;
-        }
-        #game-overlay button {
-            margin-top: 20px;
-            padding: 10px 20px;
-            font-size: 16px;
-            background: #217346;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
-        #game-overlay button:hover { background: #175434; }
+        /* 하단 정보바 */
+        .status-info { font-size: 12px; margin-top: 15px; color: #1a5ea9; font-weight: bold; text-align: center; }
 
-        /* 가짜 엑셀 시트 디테일 */
-        .excel-side-info {
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-            top: 50px; /* 게임 보드 위로 배치 */
-            width: 700px; /* 엑셀 시트처럼 넓게 */
-            height: 500px;
-            background: #fff;
-            border: 1px solid #d4d4d4;
-            pointer-events: none; /* 게임 클릭 방해 안 하게 */
-            z-index: 5;
-            opacity: 0.9;
-        }
-
-        .col-header { position: absolute; top: 0; left: 40px; right: 0; height: 20px; border-bottom: 1px solid #bbb; display: flex; }
-        .col-header div { flex: 1; border-right: 1px solid #eee; text-align: center; color: #888; background: #e6e6e6; }
-        .row-header { position: absolute; top: 20px; left: 0; bottom: 0; width: 40px; border-right: 1px solid #bbb; }
-        .row-header div { height: 20px; border-bottom: 1px solid #eee; text-align: center; color: #888; background: #e6e6e6; }
-        
-        .dummy-data {
-            position: absolute;
-            top: 21px; /* 컬럼 헤더 아래 */
-            left: 41px; /* 로우 헤더 옆 */
-            right: 0; bottom: 0;
-            display: grid;
-            grid-template-columns: repeat(6, 1fr);
-            grid-template-rows: repeat(20, 1fr);
-            font-size: 10px;
-            color: #666;
-        }
-        .dummy-cell { border: 1px solid #eee; padding: 2px 4px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-
-        /* 스코어 및 팁 */
-        #game-info {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: #f9f9f9;
-            border: 1px solid #ddd;
-            padding: 8px 12px;
-            font-size: 12px;
-            color: #4a4a4a;
-            z-index: 15;
-            line-height: 1.5;
-            box-shadow: 1px 1px 3px rgba(0,0,0,0.1);
-        }
-        #score { font-size: 14px; font-weight: bold; color: #217346; }
-
-        /* 하단 탭 */
-        .sheet-tabs { position: fixed; bottom: 22px; left: 0; width: 100%; background: #f3f3f3; border-top: 1px solid #bbb; display: flex; font-size: 11px; align-items: center; }
-        .active-tab { background: #fff; border-bottom: 3px solid #217346; padding: 5px 15px; color: #217346; font-weight: bold; border-right: 1px solid #bbb; }
-        .inactive-tab { padding: 5px 15px; color: #666; border-right: 1px solid #bbb; cursor: default; }
-
-        .footer-status { position: fixed; bottom: 0; width: 100%; background: #217346; color: white; font-size: 10px; padding: 3px 15px; display: flex; justify-content: space-between; }
-        
+        /* 하단 프로그램 상태바 */
+        .hwp-footer { background: #004695; color: white; font-size: 11px; padding: 4px 20px; display: flex; justify-content: space-between; flex-shrink: 0; }
     </style>
 </head>
 <body>
 
-<div class="excel-top">
-    <span>자동 저장됨: 2024_분기별_시장_점유율_데이터_시뮬레이션_v3.2.xlsx</span>
-    <span style="font-size: 10px;">사용자: Analyst_Kim</span>
-</div>
-
-<div class="excel-ribbon">
-    <span>파일</span> <b>홈</b> <span>삽입</span> <span>데이터</span> <span>검토</span> <span>보기</span> <span>개발 도구</span>
-</div>
-
-<div class="formula-bar">
-    <span class="address-box" id="current-cell">C12</span>
-    <span style="font-style: italic; color: #217346; font-weight: bold; margin-right: 10px;">fx</span>
-    <span id="formula-text">=SUM(C1:C11)*IF(MONTH(TODAY())=9, 1.15, 1)</span>
-</div>
-
-<div class="sheet-area">
-    <div id="game-board"></div>
-    <div id="game-overlay">
-        <span id="overlay-message">게임 오버! 다시 시도하세요.</span>
-        <button onclick="restartGame()">새 게임 시작</button>
+<div class="hwp-header">
+    <div class="hwp-menu">파일(F)  편집(E)  보기(V)  입력(I)  서식(J)  쪽(W)  보안(P)  검토(R)  도구(K)</div>
+    <div class="hwp-tools">
+        <div class="tool-icon"></div><div class="tool-icon"></div><div class="tool-icon"></div>
+        <div style="font-size: 11px; color: #444; margin-left: 10px;">함초롬바탕 | 10.0pt | 양쪽 정렬 | 줄 간격 160%</div>
     </div>
+</div>
 
-    <div class="excel-side-info">
-        <div class="col-header">
-            <div style="width: 40px; border-right: none;"></div>
-            <div style="flex:0.8">A</div><div style="flex:1">B</div><div style="flex:1.2">C</div><div style="flex:0.7">D</div><div style="flex:1.5">E</div><div style="flex:1">F</div>
+<div class="viewport">
+    <div class="a4-page">
+        <h1>2024년도 청년정책 세부 시행계획(안)</h1>
+        
+        <p>본 보고서는 2024년 정부 및 지자체에서 추진 예정인 청년 지원 정책의 주요 지표를 점검하고, 이에 따른 예산 배정의 적절성을 시뮬레이션하기 위해 작성되었다. 특히 주거안정과 자산 형성에 대한 지표를 중점적으로 관리한다.</p>
+
+        <h2>1. 청년 주거 및 금융 지원 현황</h2>
+        <p>현행 청년 월세 지원 사업의 참여 인원은 전년 대비 약 12% 증가하였으며, 청년도약계좌의 가입자 수는 목표치의 85%를 상회하고 있다. 원활한 사업 진행을 위해 아래와 같은 가중치 기반 데이터 보정(Matrix Simulation)을 실시한다.</p>
+
+        <div class="table-container">
+            <div class="table-title"><표 1-2> 지역별 정책 체감 지수 시뮬레이션 매트릭스</div>
+            <div id="game-board"></div>
+            <div class="status-info">시뮬레이션 통합 지수: <span id="score">0</span> (임계치: 2048)</div>
         </div>
-        <div class="row-header">
-            <div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div><div>7</div><div>8</div><div>9</div><div>10</div><div>11</div><div>12</div><div>13</div><div>14</div><div>15</div><div>16</div><div>17</div><div>18</div><div>19</div><div>20</div>
-        </div>
-        <div class="dummy-data">
-            </div>
-    </div>
 
-    <div id="game-info">
-        <div>현재 시뮬레이션 값: <span id="score">0</span></div>
-        <div style="font-size: 10px; color: #888; margin-top: 5px;">* 데이터를 좌우상하로 통합하여 목표치를 만드세요.</div>
-        <div style="font-size: 10px; color: #888;">* 방향키로 시뮬레이션 값을 이동시킬 수 있습니다.</div>
-    </div>
+        <h2>2. 데이터 분석 결과 요약</h2>
+        <p>- 수도권 및 광역시 단위의 정책 유입 속도가 비대면 채널 확대로 인해 가속화됨.<br>
+           - 자산 형성 지표(Matrix Value)의 병합 속도가 높을수록 정책 효율성이 개선되는 것으로 나타남.<br>
+           - 최종 임계치(2048) 도달 시, 해당 분기의 예산 조기 집행 여부를 검토함.</p>
 
+        <p style="margin-top: 50px; color: #888; font-size: 11px;">* 본 문서는 대외비이며 무단 복제 및 유포를 금함. (재무관리팀-2024-02-08)</p>
+    </div>
 </div>
 
-<div class="sheet-tabs">
-    <div class="active-tab">Sheet1</div>
-    <div class="inactive-tab">Raw_Data</div>
-    <div class="inactive-tab">분기_실적</div>
-    <div class="inactive-tab">+</div>
-</div>
-
-<div class="footer-status">
-    <div>준비 | 시뮬레이션 실행 중...</div>
-    <div>평균값: 128 | 오차율: ±15% | 셀: G23</div>
+<div class="hwp-footer">
+    <div>1/1 쪽 | 1단 | 줄 24, 칸 15 | [수정]</div>
+    <div>한컴오피스 한글 2024</div>
 </div>
 
 <script>
-    const BOARD_SIZE = 4;
+    const size = 4;
     let board = [];
     let score = 0;
-    let gameOver = false;
-    let gameWon = false;
 
-    const gameBoardElement = document.getElementById('game-board');
-    const scoreElement = document.getElementById('score');
-    const overlayElement = document.getElementById('game-overlay');
-    const overlayMessageElement = document.getElementById('overlay-message');
-
-    function initializeGame() {
-        board = Array(BOARD_SIZE).fill(0).map(() => Array(BOARD_SIZE).fill(0));
+    // 초기화
+    function init() {
+        board = Array(size).fill(0).map(() => Array(size).fill(0));
         score = 0;
-        gameOver = false;
-        gameWon = false;
-        overlayElement.style.display = 'none';
-        
         addRandomTile();
         addRandomTile();
-        updateBoardView();
-        updateScore();
+        render();
     }
 
+    // 빈 칸에 2 또는 4 추가
     function addRandomTile() {
-        if (!hasEmptyCells()) return;
-
-        let row, col;
-        do {
-            row = Math.floor(Math.random() * BOARD_SIZE);
-            col = Math.floor(Math.random() * BOARD_SIZE);
-        } while (board[row][col] !== 0);
-
-        board[row][col] = Math.random() < 0.9 ? 2 : 4; // 90% 확률로 2, 10% 확률로 4
-    }
-
-    function hasEmptyCells() {
-        for (let r = 0; r < BOARD_SIZE; r++) {
-            for (let c = 0; c < BOARD_SIZE; c++) {
-                if (board[r][c] === 0) return true;
+        let empty = [];
+        for (let r = 0; r < size; r++) {
+            for (let c = 0; c < size; c++) {
+                if (board[r][c] === 0) empty.push({r, c});
             }
         }
-        return false;
-    }
-
-    function updateBoardView() {
-        gameBoardElement.innerHTML = '';
-        for (let r = 0; r < BOARD_SIZE; r++) {
-            for (let c = 0; c < BOARD_SIZE; c++) {
-                const cell = document.createElement('div');
-                cell.className = 'grid-cell';
-                if (board[r][c] !== 0) {
-                    cell.dataset.value = board[r][c];
-                    cell.textContent = board[r][c];
-                }
-                gameBoardElement.appendChild(cell);
-            }
+        if (empty.length > 0) {
+            let {r, c} = empty[Math.floor(Math.random() * empty.length)];
+            board[r][c] = Math.random() < 0.9 ? 2 : 4;
         }
     }
 
-    function updateScore() {
-        scoreElement.textContent = score;
+    // 화면 그리기
+    function render() {
+        const boardEl = document.getElementById('game-board');
+        boardEl.innerHTML = '';
+        board.flat().forEach(val => {
+            const cell = document.createElement('div');
+            cell.className = 'grid-cell';
+            if (val > 0) {
+                cell.innerText = val;
+                cell.setAttribute('data-value', val);
+            }
+            boardEl.appendChild(cell);
+        });
+        document.getElementById('score').innerText = score;
     }
 
-    function slideTiles(row) {
-        let newRow = row.filter(val => val !== 0); // 0이 아닌 타일만 추출
-        let missing = BOARD_SIZE - newRow.length;
-        let zeros = Array(missing).fill(0);
-        return newRow.concat(zeros); // 0을 뒤에 추가
-    }
-
-    function combineTiles(row) {
-        for (let i = 0; i < BOARD_SIZE - 1; i++) {
-            if (row[i] !== 0 && row[i] === row[i + 1]) {
-                row[i] *= 2;
-                score += row[i];
-                if (row[i] === 2048) gameWon = true;
-                row[i + 1] = 0;
+    // 타일 이동 및 합치기 (핵심 로직)
+    function slide(row) {
+        let arr = row.filter(val => val);
+        for (let i = 0; i < arr.length - 1; i++) {
+            if (arr[i] === arr[i + 1]) {
+                arr[i] *= 2;
+                score += arr[i];
+                arr.splice(i + 1, 1);
             }
         }
-        return row;
+        while (arr.length < size) arr.push(0);
+        return arr;
     }
 
-    function move(direction) {
-        let boardChanged = false;
-        let oldBoard = JSON.parse(JSON.stringify(board)); // 이전 보드 상태 저장
+    function rotateBoard(matrix) {
+        return matrix[0].map((val, index) => matrix.map(row => row[index]).reverse());
+    }
 
-        for (let r = 0; r < BOARD_SIZE; r++) {
-            if (direction === 'left' || direction === 'right') {
-                let row = board[r];
-                let originalRow = [...row];
-                
-                row = slideTiles(row);
-                row = combineTiles(row);
-                row = slideTiles(row);
-                
-                board[r] = row;
-                if (JSON.stringify(originalRow) !== JSON.stringify(row)) boardChanged = true;
-
-            } else { // Up or Down
-                let column = [];
-                for (let i = 0; i < BOARD_SIZE; i++) column.push(board[i][r]);
-                let originalColumn = [...column];
-
-                if (direction === 'up') {
-                    column = slideTiles(column);
-                    column = combineTiles(column);
-                    column = slideTiles(column);
-                } else { // Down
-                    column.reverse();
-                    column = slideTiles(column);
-                    column = combineTiles(column);
-                    column = slideTiles(column);
-                    column.reverse();
-                }
-
-                if (JSON.stringify(originalColumn) !== JSON.stringify(column)) boardChanged = true;
-                for (let i = 0; i < BOARD_SIZE; i++) board[i][r] = column[i];
-            }
+    function handleKey(e) {
+        let prevBoard = JSON.stringify(board);
+        
+        if (e.key === "ArrowLeft") {
+            board = board.map(row => slide(row));
+        } else if (e.key === "ArrowRight") {
+            board = board.map(row => slide(row.reverse()).reverse());
+        } else if (e.key === "ArrowUp") {
+            board = rotateBoard(rotateBoard(rotateBoard(board)));
+            board = board.map(row => slide(row));
+            board = rotateBoard(board);
+        } else if (e.key === "ArrowDown") {
+            board = rotateBoard(board);
+            board = board.map(row => slide(row));
+            board = rotateBoard(rotateBoard(rotateBoard(board)));
+        } else {
+            return; // 다른 키 무시
         }
 
-        if (boardChanged) {
+        e.preventDefault();
+        if (prevBoard !== JSON.stringify(board)) {
             addRandomTile();
-            updateBoardView();
-            updateScore();
-            checkGameState();
+            render();
+            checkStatus();
         }
     }
 
-    function checkGameState() {
-        if (gameWon) {
-            overlayMessageElement.textContent = "목표값 2048 달성! 업무 성과 우수!";
-            overlayElement.style.display = 'flex';
-        } else if (!hasEmptyCells() && !canMove()) {
-            gameOver = true;
-            overlayMessageElement.textContent = "시뮬레이션 실패... 다시 시도하세요.";
-            overlayElement.style.display = 'flex';
+    function checkStatus() {
+        if (board.flat().includes(2048)) {
+            alert("시뮬레이션 목표 도달: 정책 효율 극대화 완료!");
         }
+        // 이동 가능 여부 체크 생략 (단순화)
     }
 
-    function canMove() {
-        for (let r = 0; r < BOARD_SIZE; r++) {
-            for (let c = 0; c < BOARD_SIZE; c++) {
-                if (board[r][c] === 0) return true; // 빈 셀 있으면 움직일 수 있음
-
-                // 인접한 셀에 같은 값이 있는지 확인
-                if (c < BOARD_SIZE - 1 && board[r][c] === board[r][c+1]) return true; // 오른쪽
-                if (r < BOARD_SIZE - 1 && board[r][c] === board[r+1][c]) return true; // 아래쪽
-            }
-        }
-        return false;
-    }
-
-    function restartGame() {
-        initializeGame();
-    }
-
-    // 키보드 이벤트 리스너
-    document.addEventListener('keydown', (e) => {
-        if (gameOver || gameWon) return;
-
-        switch (e.key) {
-            case 'ArrowLeft': move('left'); break;
-            case 'ArrowRight': move('right'); break;
-            case 'ArrowUp': move('up'); break;
-            case 'ArrowDown': move('down'); break;
-            default: return; // 다른 키는 무시
-        }
-        e.preventDefault(); // 기본 스크롤 동작 방지
-    });
-
-    // Dummy data for the excel-side-info
-    const dummyDataElements = document.querySelector('.dummy-data');
-    const dummyWords = ["영업", "비용", "마케팅", "재고", "수익", "지출", "고객", "성과", "분석", "예산", "보고서", "데이터", "관리", "전략", "협업", "목표", "지표", "트렌드", "점유율", "글로벌"];
-    
-    for(let i = 0; i < 20 * 6; i++) {
-        const dummyCell = document.createElement('div');
-        dummyCell.className = 'dummy-cell';
-        if (Math.random() < 0.7) { // 70% 확률로 데이터 채움
-            dummyCell.textContent = dummyWords[Math.floor(Math.random() * dummyWords.length)] + (Math.random() < 0.5 ? "" : " " + (Math.random() * 1000).toFixed(0));
-            if (Math.random() < 0.1) dummyCell.textContent = Math.floor(Math.random() * 999999).toLocaleString(); // 큰 숫자
-        }
-        dummyDataElements.appendChild(dummyCell);
-    }
-
-
-    initializeGame();
+    window.addEventListener('keydown', handleKey);
+    init();
 </script>
 
 </body>
