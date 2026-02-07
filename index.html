@@ -2,206 +2,166 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>2026_Project_Gutenberg_Full_Sync.xlsx</title>
+    <title>Q1_Global_Operations_Performance_Dashboard.xlsx</title>
     <style>
-        body { margin: 0; font-family: 'Segoe UI', 'Malgun Gothic', sans-serif; background: #f3f3f3; color: #333; overflow: hidden; }
-        .excel-header { background: #217346; color: white; padding: 6px 15px; font-size: 12px; font-weight: bold; }
-        .excel-menu { background: #fff; border-bottom: 1px solid #ddd; padding: 5px 15px; font-size: 13px; color: #444; display: flex; gap: 15px; }
+        body { margin: 0; font-family: 'Segoe UI', 'Malgun Gothic', sans-serif; background: #f3f3f3; color: #333; overflow: hidden; font-size: 12px; }
+        .excel-header { background: #217346; color: white; padding: 6px 15px; font-size: 12px; font-weight: bold; display: flex; justify-content: space-between; }
+        .excel-menu { background: #fff; border-bottom: 1px solid #ddd; padding: 5px 15px; display: flex; gap: 15px; border-top: 1px solid #eee; }
         
-        /* 메인 컨테이너 */
-        .main-container { padding: 20px; display: flex; flex-direction: column; align-items: center; height: calc(100vh - 150px); }
+        /* 대시보드 레이아웃 */
+        .dashboard-container { display: grid; grid-template-columns: 250px 1fr 300px; gap: 10px; padding: 10px; height: calc(100vh - 100px); }
         
-        /* 상단 날짜 선택 바 (Day Selector) */
-        .day-selector { display: flex; gap: 5px; margin-bottom: 15px; flex-wrap: wrap; justify-content: center; }
-        .day-btn { border: 1px solid #217346; background: white; color: #217346; padding: 5px 12px; cursor: pointer; font-size: 12px; border-radius: 3px; }
-        .day-btn.active { background: #217346; color: white; font-weight: bold; }
-        .day-btn:hover { background: #e8f5e9; }
+        /* 섹션 스타일 */
+        .widget { background: white; border: 1px solid #d4d4d4; padding: 10px; display: flex; flex-direction: column; }
+        .widget-title { font-weight: bold; color: #217346; border-bottom: 2px solid #217346; padding-bottom: 5px; margin-bottom: 10px; display: flex; justify-content: space-between; }
 
-        .tab-group { display: flex; margin-bottom: 15px; background: #e6e6e6; border-radius: 5px; padding: 3px; }
-        .tab-btn { border: none; padding: 8px 18px; cursor: pointer; border-radius: 4px; font-size: 13px; background: transparent; }
-        .tab-btn.active { background: white; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        /* 무한 로딩 데이터 그리드 */
+        .data-grid { flex: 1; overflow: hidden; font-family: 'Consolas', monospace; font-size: 11px; }
+        table { border-collapse: collapse; width: 100%; text-align: right; }
+        th { background: #f9f9f9; border: 1px solid #ddd; padding: 5px; font-weight: normal; }
+        td { border: 1px solid #eee; padding: 4px; color: #444; }
+        .highlight { color: #d32f2f; font-weight: bold; }
+        .growth { color: #2e7d32; }
 
-        /* 학습 카드 */
-        .study-card { background: white; border: 1px solid #d4d4d4; width: 95%; max-width: 650px; box-shadow: 2px 2px 10px rgba(0,0,0,0.1); border-radius: 4px; }
-        .card-header { background: #f9f9f9; padding: 10px 15px; font-size: 11px; color: #888; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; }
-        .content-area { padding: 40px 25px; text-align: center; min-height: 180px; display: flex; flex-direction: column; justify-content: center; cursor: pointer; }
-        #main-text { font-size: 19px; font-weight: bold; color: #1a1a1a; margin-bottom: 20px; line-height: 1.5; }
-        #sub-text { font-size: 16px; color: #444; background: #f1f8f5; padding: 12px; border-radius: 5px; visibility: hidden; line-height: 1.6; }
-        
-        .btn-group { display: flex; border-top: 1px solid #eee; }
-        .action-btn { flex: 1; padding: 15px; border: none; background: white; cursor: pointer; font-size: 14px; }
-        .action-btn:hover { background: #f5f5f5; font-weight: bold; }
-        .action-btn.check-btn { background: #217346 !important; color: white; }
+        /* 실시간 시스템 로그 */
+        .log-area { background: #1a1a1a; color: #00ff00; padding: 10px; font-family: 'Consolas', monospace; font-size: 10px; height: 150px; overflow: hidden; border-radius: 4px; }
 
-        /* 엑셀 배경 그리드 */
-        .bg-grid { position: fixed; top: 120px; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.15; pointer-events: none; }
-        .grid-table { border-collapse: collapse; width: 100%; }
-        .grid-table td { border: 1px solid #d4d4d4; height: 28px; }
-        
+        /* 가짜 차트 영역 */
+        .chart-box { border: 1px dashed #ccc; flex: 1; display: flex; align-items: flex-end; gap: 5px; padding: 10px; position: relative; }
+        .bar { background: #217346; width: 100%; transition: height 0.5s ease; }
+
+        /* 상태 바 */
         .status-bar { position: fixed; bottom: 0; width: 100%; background: #217346; color: white; font-size: 11px; padding: 4px 15px; display: flex; justify-content: space-between; }
+        
+        /* 깜빡이는 효과 */
+        .blinker { animation: blink 1s infinite; }
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
     </style>
 </head>
 <body>
 
-<div class="excel-header">Excel - Pride_and_Prejudice_Full_Archive.xlsx</div>
-<div class="excel-menu">파일 &nbsp; 홈 &nbsp; 삽입 &nbsp; 데이터 &nbsp; 검토 &nbsp; 보기 &nbsp; 도움말</div>
+<div class="excel-header">
+    <span>Excel - Quarterly_Global_Profit_Loss_Model_v4.2.xlsx</span>
+    <span>Auto-Save: ON | Sync: Stable</span>
+</div>
+<div class="excel-menu">
+    <b>File</b> <b>Home</b> <b>Insert</b> <b>Draw</b> <b>Page Layout</b> <b>Formulas</b> <b>Data</b> <b>Review</b> <b>View</b> <b>Automate</b>
+</div>
 
-<div class="main-container">
-    <div class="day-selector" id="day-selector">
+<div class="dashboard-container">
+    <div class="widget">
+        <div class="widget-title">KPI Metrics <span class="blinker">●</span></div>
+        <div style="font-size: 10px; color: #666; margin-bottom: 15px;">Refresh Rate: 500ms</div>
+        <div id="kpi-list">
+            </div>
+        <div class="widget-title" style="margin-top:20px;">System Logs</div>
+        <div class="log-area" id="log-display">
+            Initializing sync...<br>
+            Connecting to server...<br>
         </div>
-
-    <div class="tab-group">
-        <button id="learnTab" class="tab-btn active" onclick="setMode('learn')">📖 학습 모드</button>
-        <button id="quizTab" class="tab-btn" onclick="setMode('quiz')">❓ 퀴즈 모드</button>
     </div>
 
-    <div class="study-card">
-        <div class="card-header">
-            <span id="card-day-label">CHAPTER 1 - DAY 1</span>
-            <span id="progress-text">1 / 20</span>
+    <div class="widget">
+        <div class="widget-title">Real-time Transaction Analysis (Global)</div>
+        <div class="data-grid">
+            <table id="data-table">
+                <thead>
+                    <tr><th>ID</th><th>Region</th><th>Revenue</th><th>Delta</th><th>Status</th></tr>
+                </thead>
+                <tbody id="data-body">
+                    </tbody>
+            </table>
         </div>
-        <div class="content-area" onclick="reveal()">
-            <div id="main-text">데이터를 불러오는 중...</div>
-            <div id="sub-text">해석이 여기에 나타납니다.</div>
-        </div>
-        <div class="btn-group">
-            <button class="action-btn" onclick="prev()">이전</button>
-            <button class="action-btn check-btn" onclick="reveal()">정답 확인</button>
-            <button class="action-btn" onclick="next()">다음</button>
+    </div>
+
+    <div class="widget">
+        <div class="widget-title">Visualized Trends</div>
+        <div class="chart-box" id="chart-container">
+            </div>
+        <div style="margin-top: 20px;">
+            <div class="widget-title">Quick Notes</div>
+            <textarea style="width: 100%; height: 150px; border: 1px solid #ddd; font-size: 11px; padding: 5px; resize: none;">
+- Q1 실적 데이터 취합 중 (Region A~F)
+- 환율 변동에 따른 오차 범위 보정 필요
+- 가중 평균값 재계산 (Michaelmas 기준)
+- 다음 회의 안건: 운영 효율 극대화 방안
+            </textarea>
         </div>
     </div>
 </div>
 
-<div class="bg-grid"><table id="grid" class="grid-table"></table></div>
 <div class="status-bar">
-    <div>📊 SOURCE: Project Gutenberg (Public Domain)</div>
-    <div id="today-info">Current Selection: Day 1</div>
+    <div id="loading-msg">Ready - Calculating complex formulas...</div>
+    <div>CPU Usage: 12% | RAM: 1.4GB | Cell: $AD$256</div>
 </div>
 
 <script>
-    // 오만과 편견 1~2장 데이터 (총 100문장, Day 1~5)
-    const allData = [
-        // Day 1: 1장 시작
-        { en: "It is a truth universally acknowledged, that a single man in possession of a good fortune, must be in want of a wife.", ko: "재산이 꽤 있는 미혼 남성에게 아내가 필요할 것이라는 점은 보편적으로 인정받는 진리이다." },
-        { en: "However little known the feelings of such a man may be on his first entering a neighbourhood,", ko: "그런 남자가 마을에 처음 들어왔을 때 그의 감정이 어떨지 거의 알려진 바가 없더라도," },
-        { en: "this truth is so well fixed in the minds of the surrounding families,", ko: "이 진리는 주변 가족들의 마음 속에 너무나 확고하게 자리 잡고 있어서," },
-        { en: "that he is considered the rightful property of some one or other of their daughters.", ko: "그 남자는 그들 중 어느 한 집 딸의 정당한 소유물로 여겨진다." },
-        { en: "\"My dear Mr. Bennet,\" said his lady to him one day, \"have you heard that Netherfield Park is let at last?\"", ko: "어느 날 베넷 부인이 남편에게 말했다. \"여보, 베넷 씨, 네더필드 파크가 드디어 임대되었다는 소식 들으셨나요?\"" },
-        { en: "Mr. Bennet replied that he had not.", ko: "베넷 씨는 듣지 못했다고 대답했다." },
-        { en: "\"But it is,\" returned she; \"for Mrs. Long has just been there, and she told me all about it.\"", ko: "\"임대되었대요.\" 그녀가 대꾸했다. \"방금 롱 부인이 거기 다녀왔거든요. 제게 전부 얘기해 줬어요.\"" },
-        { en: "Mr. Bennet made no answer.", ko: "베넷 씨는 아무 대답도 하지 않았다." },
-        { en: "\"Do you not want to know who has taken it?\" cried his wife impatiently.", ko: "\"누가 그 집을 빌렸는지 알고 싶지 않으세요?\" 아내가 참을성 없이 외쳤다." },
-        { en: "\"YOU want to tell me, and I have no objection to hearing it.\"", ko: "\"당신이 말하고 싶어 하니, 들어주는 데 반대하지 않겠소.\"" },
-        { en: "This was invitation enough.", ko: "이것만으로도 충분한 권유가 되었다." },
-        { en: "\"Why, my dear, you must know, Mrs. Long says that Netherfield is taken by a young man of large fortune from the north of England;\"", ko: "\"여보, 롱 부인 말로는 영국 북부에서 온 재산이 아주 많은 젊은이가 네더필드를 빌렸대요.\"" },
-        { en: "that he came down on Monday in a chaise and four to see the place,", ko: "월요일에 말 네 마리가 끄는 마차를 타고 그곳을 보러 내려왔는데," },
-        { en: "and was so much delighted with it, that he agreed with Mr. Morris immediately;\"", ko: "너무 마음에 들어서 즉시 모리스 씨와 합의했다는군요.\"" },
-        { en: "that he is to take possession before Michaelmas,", ko: "미카엘 축일 전에는 입주하기로 했고," },
-        { en: "and some of his servants are to be in the house by the end of next week.\"", ko: "다음 주말까지는 하인 중 몇 명이 먼저 올 거래요.\"" },
-        { en: "\"What is his name?\"", ko: "\"그 사람 이름이 뭐요?\"" },
-        { en: "\"Bingley.\"", ko: "\"빙리래요.\"" },
-        { en: "\"Is he married or single?\"", ko: "\"그가 결혼을 했소, 아니면 미혼이오?\"" },
-        { en: "\"Oh! Single, my dear, to be sure! A single man of large fortune;\"", ko: "\"오! 당연히 미혼이죠! 재산이 아주 많은 미혼남이라니까요.\"" },
+    // 1. 가짜 데이터 생성기
+    const regions = ['North Am', 'Europe', 'APAC', 'LATAM', 'Middle East', 'Africa'];
+    const statuses = ['Pending', 'Verified', 'Processing', 'Synced'];
 
-        // Day 2
-        { en: "What a fine thing for our girls!", ko: "우리 딸들에게 얼마나 잘된 일이에요!" },
-        { en: "\"How so? How can it affect them?\"", ko: "\"그게 어째서? 딸들에게 무슨 상관이 있단 말이오?\"" },
-        { en: "\"My dear Mr. Bennet,\" replied his wife, \"how can you be so tiresome!\"", ko: "\"어머 베넷 씨,\" 아내가 대답했다. \"어쩜 그렇게 무심하실 수가 있어요!\"" },
-        { en: "\"You must know that I am thinking of his marrying one of them.\"", ko: "\"내가 그 사람과 우리 딸들 중 하나를 결혼시킬 생각을 한다는 걸 아시잖아요.\"" },
-        { en: "\"Is that his design in settling here?\"", ko: "\"그게 그가 여기 정착하는 목적이란 말이오?\"" },
-        { en: "\"Design! Nonsense, how can you talk so!\"", ko: "\"목적이라니요! 말도 안 돼요, 어떻게 그런 말을!\"" },
-        { en: "\"But it is very likely that he MAY fall in love with one of them,\"", ko: "\"하지만 그가 우리 딸들 중 한 명과 사랑에 빠질 가능성은 매우 높잖아요.\"" },
-        { en: "\"therefore you must visit him as soon as he comes.\"", ko: "\"그러니까 그가 오자마자 당신이 방문해야 해요.\"" },
-        { en: "\"I see no occasion for that. You and the girls may go,\"", ko: "\"그럴 필요까진 없을 것 같소. 당신과 딸들이나 가구려.\"" },
-        { en: "\"or you may send them by themselves, which perhaps will be still better,\"", ko: "\"아니면 딸들만 보내든지. 그게 아마 더 나을 거요.\"" },
-        { en: "\"for as you are as handsome as any of them, Mr. Bingley might like you the best of the party.\"", ko: "\"당신도 딸들 못지않게 아름다우니, 빙리 씨가 당신을 제일 좋아할지도 모르지 않소.\"" },
-        { en: "\"My dear, you flatter me. I certainly HAVE had my share of beauty,\"", ko: "\"여보, 비행기 태우지 마세요. 예전엔 한 미모 했었죠.\"" },
-        { en: "\"but I do not pretend to be anything extraordinary now.\"", ko: "\"하지만 지금은 대단하다고 우기지는 않아요.\"" },
-        { en: "\"When a woman has five grown-up daughters, she ought to give over thinking of her own beauty.\"", ko: "\"다 큰 딸이 다섯이나 되면 자기 외모 생각은 그만둬야 하는 법이죠.\"" },
-        { en: "\"In such cases, a woman has not often much beauty to think of.\"", ko: "\"그런 경우에는 외모랄 것도 별로 남아있지 않기 마련이지.\"" },
-        { en: "\"But, my dear, you must indeed go and see Mr. Bingley when he comes into the neighbourhood.\"", ko: "\"하지만 여보, 빙리 씨가 이사 오면 정말 꼭 가서 보셔야 해요.\"" },
-        { en: "\"It is more than I engage for, I assure you.\"", ko: "\"장담컨대 그건 내 소관 밖의 일이오.\"" },
-        { en: "\"But consider your daughters.\"", ko: "\"딸들을 생각해서라도요.\"" },
-        { en: "\"Only think what an establishment it would be for one of them.\"", ko: "\"딸 중 하나가 자리를 잡는 게 얼마나 큰일인지 생각 좀 해보세요.\"" },
-        { en: "\"Sir William and Lady Lucas are determined to go, merely on that account.\"", ko: "\"윌리엄 경과 루카스 부인도 오직 그 때문에 가기로 결정했단 말이에요.\"" }
-        // (이하 Day 3, 4, 5는 동일한 방식으로 100문장까지 채워져 있다고 가정 - 지면상 중략)
+    function generateRow() {
+        const id = Math.floor(Math.random() * 9000) + 1000;
+        const region = regions[Math.floor(Math.random() * regions.length)];
+        const rev = (Math.random() * 5000).toFixed(2);
+        const delta = (Math.random() * 10 - 5).toFixed(2);
+        const status = statuses[Math.floor(Math.random() * statuses.length)];
+        
+        const deltaClass = delta > 0 ? 'growth' : 'highlight';
+        const deltaSymbol = delta > 0 ? '▲' : '▼';
+
+        return `<tr><td>${id}</td><td>${region}</td><td>$${rev}</td><td class="${deltaClass}">${deltaSymbol}${Math.abs(delta)}%</td><td>${status}</td></tr>`;
+    }
+
+    // 2. 데이터 시트 업데이트 (계속 변함)
+    const dataBody = document.getElementById('data-body');
+    for(let i=0; i<25; i++) dataBody.innerHTML += generateRow();
+
+    setInterval(() => {
+        dataBody.deleteRow(-1);
+        const newRow = dataBody.insertRow(0);
+        newRow.innerHTML = generateRow().replace('<tr>', '').replace('</tr>', '');
+    }, 800);
+
+    // 3. 로그 업데이트
+    const logDisplay = document.getElementById('log-display');
+    const logMsgs = [
+        "FETCHING data from SQL_SERVER_01...",
+        "DATA_POINT validated.",
+        "Updating Pivot Cache...",
+        "Recalculating macro 'Auto_Calc_V2'...",
+        "Warning: High latency in APAC node.",
+        "Buffer cleared. Proceeding..."
     ];
 
-    // 부족한 데이터를 위해 더미 데이터 보충 (실제로는 소설 전문을 20문장씩 끊어 넣으시면 됩니다)
-    while(allData.length < 100) {
-        allData.push({ en: "Classic sentence from Pride and Prejudice continues... [" + allData.length + "]", ko: "오만과 편견의 문장이 계속 이어집니다... [" + allData.length + "]" });
+    setInterval(() => {
+        const msg = logMsgs[Math.floor(Math.random() * logMsgs.length)];
+        logDisplay.innerHTML += `> ${msg}<br>`;
+        if(logDisplay.innerHTML.length > 500) logDisplay.innerHTML = logDisplay.innerHTML.substring(200);
+        logDisplay.scrollTop = logDisplay.scrollHeight;
+    }, 1500);
+
+    // 4. 가짜 차트 업데이트
+    const chartContainer = document.getElementById('chart-container');
+    for(let i=0; i<12; i++) {
+        const bar = document.createElement('div');
+        bar.className = 'bar';
+        bar.style.height = Math.random() * 100 + '%';
+        chartContainer.appendChild(bar);
     }
 
-    let currentDay = 1;
-    let index = 0;
-    let mode = 'learn';
-    let studyData = [];
+    setInterval(() => {
+        const bars = document.querySelectorAll('.bar');
+        bars.forEach(bar => {
+            bar.style.height = Math.random() * 100 + '%';
+        });
+    }, 2000);
 
-    // 진도 선택기 생성
-    function createDayButtons() {
-        const selector = document.getElementById('day-selector');
-        const totalDays = Math.ceil(allData.length / 20);
-        for (let i = 1; i <= totalDays; i++) {
-            const btn = document.createElement('button');
-            btn.innerText = `Day ${i}`;
-            btn.className = 'day-btn' + (i === 1 ? ' active' : '');
-            btn.onclick = () => selectDay(i);
-            selector.appendChild(btn);
-        }
-    }
-
-    function selectDay(day) {
-        currentDay = day;
-        index = 0;
-        const btns = document.querySelectorAll('.day-btn');
-        btns.forEach((b, i) => b.className = (i + 1 === day) ? 'day-btn active' : 'day-btn');
-        
-        const start = (day - 1) * 20;
-        studyData = allData.slice(start, start + 20);
-        
-        document.getElementById('card-day-label').innerText = `CHAPTER 1 - DAY ${day}`;
-        document.getElementById('today-info').innerText = `Current Selection: Day ${day}`;
-        update();
-    }
-
-    function setMode(newMode) {
-        mode = newMode;
-        document.getElementById('learnTab').className = (mode === 'learn') ? 'tab-btn active' : 'tab-btn';
-        document.getElementById('quizTab').className = (mode === 'quiz') ? 'tab-btn active' : 'tab-btn';
-        update();
-    }
-
-    function update() {
-        if(studyData.length === 0) return;
-        const current = studyData[index];
-        const mainText = document.getElementById('main-text');
-        const subText = document.getElementById('sub-text');
-        
-        if (mode === 'learn') {
-            mainText.innerText = current.en;
-            subText.innerText = "💡 해석: " + current.ko;
-        } else {
-            mainText.innerText = current.ko;
-            subText.innerText = "⭐ 원문: " + current.en;
-        }
-        
-        subText.style.visibility = 'hidden';
-        document.getElementById('progress-text').innerText = `${index + 1} / ${studyData.length}`;
-    }
-
-    function reveal() { document.getElementById('sub-text').style.visibility = 'visible'; }
-    function next() { if (index < studyData.length - 1) { index++; update(); } }
-    function prev() { if (index > 0) { index--; update(); } }
-
-    // 배경 그리드
-    const grid = document.getElementById('grid');
-    for(let i=0; i<40; i++) {
-        let row = grid.insertRow();
-        for(let j=0; j<12; j++) row.insertCell();
-    }
-
-    createDayButtons();
-    selectDay(1);
+    // 5. 상태 표시줄 메시지
+    const loadingMsgs = ["Calculating formulas...", "Refreshing Pivot Table...", "Syncing with Cloud...", "Formatting report..."];
+    setInterval(() => {
+        document.getElementById('loading-msg').innerText = loadingMsgs[Math.floor(Math.random() * loadingMsgs.length)];
+    }, 3000);
 </script>
 
 </body>
