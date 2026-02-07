@@ -1,112 +1,135 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <title>Global_Literature_Review_2026.xlsx</title>
     <style>
-        body { margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f3f3f3; color: #333; overflow: hidden; }
+        body { margin: 0; font-family: 'Segoe UI', sans-serif; background: #f3f3f3; color: #333; overflow: hidden; }
         .excel-header { background: #217346; color: white; padding: 6px 15px; font-size: 12px; font-weight: bold; }
         .excel-menu { background: #fff; border-bottom: 1px solid #ddd; padding: 5px 15px; font-size: 13px; color: #444; display: flex; gap: 15px; }
         
-        /* 문장 가이드 영역 (업무용 참고문서 느낌) */
-        .reference-area { background: #fff; border: 1px solid #217346; margin: 15px; padding: 20px; border-left: 5px solid #217346; box-shadow: 2px 2px 5px rgba(0,0,0,0.05); }
-        #book-info { font-weight: bold; color: #217346; display: block; margin-bottom: 8px; font-size: 14px; }
-        #target-text { font-size: 16px; line-height: 1.5; color: #444; background: #fdfdfd; padding: 10px; border: 1px dashed #ccc; user-select: none; }
+        /* 문장 가이드 영역 */
+        .reference-area { background: #fff; border: 1px solid #217346; margin: 15px; padding: 15px; border-left: 5px solid #217346; box-shadow: 2px 2px 5px rgba(0,0,0,0.05); }
+        #book-info { font-weight: bold; color: #217346; display: block; margin-bottom: 5px; font-size: 13px; }
+        #target-text { font-size: 16px; line-height: 1.4; color: #111; font-weight: 500; margin-bottom: 8px; }
+        #translation-text { font-size: 14px; color: #666; border-top: 1px solid #eee; pt: 8px; margin-top: 8px; font-family: 'Malgun Gothic', sans-serif; }
 
         /* 엑셀 시트 영역 */
-        .sheet-container { background: white; height: calc(100vh - 220px); overflow: auto; }
+        .sheet-container { background: white; height: calc(100vh - 250px); overflow: auto; }
         table { border-collapse: collapse; width: 100%; table-layout: fixed; }
         th { background: #e6e6e6; border: 1px solid #d4d4d4; font-weight: normal; font-size: 11px; height: 20px; }
         td { border: 1px solid #d4d4d4; height: 35px; font-size: 14px; padding: 0 5px; }
         .row-num { background: #e6e6e6; text-align: center; width: 40px; color: #666; }
         
         /* 입력 셀 */
-        .typing-input { width: 100%; height: 100%; border: none; outline: none; background: transparent; font-family: 'Consolas', 'Courier New', monospace; font-size: 15px; color: #0000ff; }
-        .active-cell { outline: 2px solid #217346; background: #fff; z-index: 10; }
+        .typing-input { width: 100%; height: 100%; border: none; outline: none; background: transparent; font-family: 'Consolas', monospace; font-size: 15px; color: #0000ff; }
+        .active-cell { outline: 2px solid #217346; background: #fff; }
         
         .status-bar { position: fixed; bottom: 0; width: 100%; background: #217346; color: white; font-size: 11px; padding: 4px 12px; }
-        .loading { color: #888; font-style: italic; }
+        .progress-indicator { color: #ffeb3b; font-weight: bold; margin-left: 10px; }
     </style>
 </head>
 <body>
 
 <div class="excel-header">Excel - Annual_Classic_Literature_Database.xlsx</div>
 <div class="excel-menu">
-    <span>File</span> <span>Home</span> <span>Insert</span> <span>Page Layout</span> <span>Data</span> <span>Review</span>
-</div>
-
-<div id="ad-top" style="text-align:center; margin-top:5px; font-size:10px; color:#999;">
-    ADVERTISEMENT (광고 코드를 여기에 넣으세요)
+    <span>File</span> <span>Home</span> <span>Insert</span> <span>Data</span> <span>Review</span> <span>View</span>
 </div>
 
 <div class="reference-area">
-    <span id="book-info">📖 Loading Classic Literature...</span>
-    <div id="target-text" class="loading">Fetching data from Gutenberg Project...</div>
+    <span id="book-info">📊 DATA SOURCE: Classic Literature Archive</span>
+    <div id="target-text">Loading text...</div>
+    <div id="translation-text">해석을 불러오는 중...</div>
 </div>
 
 <div class="sheet-container">
     <table>
-        <tr>
-            <th></th><th>A</th><th>B</th><th>C</th><th>D</th><th>E</th>
-        </tr>
+        <tr><th></th><th>A</th><th>B</th><th>C</th><th>D</th><th>E</th></tr>
         <tr>
             <td class="row-num">1</td>
             <td colspan="5" class="active-cell">
-                <input type="text" id="typer" class="typing-input" placeholder="Type the text above to 'input data'..." autocomplete="off" autofocus>
+                <input type="text" id="typer" class="typing-input" placeholder="여기에 영문을 입력하세요..." autocomplete="off" autofocus>
             </td>
         </tr>
         <script>
-            for(let i=2; i<=20; i++) {
+            for(let i=2; i<=25; i++) {
                 document.write(`<tr><td class="row-num">${i}</td><td></td><td></td><td></td><td></td><td></td></tr>`);
             }
         </script>
     </table>
 </div>
 
-<div class="status-bar">SCANNED: PUBLIC DOMAIN ARCHIVE | LANGUAGE: ENGLISH | STATUS: SECURE</div>
+<div class="status-bar">
+    READY | LANGUAGE: ENGLISH-KOREAN | <span id="counter">COMPLETED: 0</span>
+</div>
 
 <script>
-    // Gutendex API (구텐베르크 프로젝트 무료 오픈 API) 사용
-    async function fetchClassicBook() {
-        try {
-            const response = await fetch('https://gutendex.com/books/?languages=en&copyright=false');
-            const data = await response.json();
-            // 무작위 책 선택
-            const randomIndex = Math.floor(Math.random() * data.results.length);
-            const book = data.results[randomIndex];
-            
-            document.getElementById('book-info').innerText = `📊 RESOURCE: "${book.title}" by ${book.authors[0]?.name || 'Unknown Author'}`;
-            
-            // 실제 책의 첫 문장이나 유명한 문장을 가져오면 좋으나 API 한계상 제목과 저자로 연습
-            // 여기서는 고정된 명언 리스트를 API 데이터와 섞어서 출력합니다.
-            const classicQuotes = [
-                "It is a truth universally acknowledged, that a single man in possession of a good fortune, must be in want of a wife.",
-                "To be, or not to be, that is the question.",
-                "All happy families are alike; each unhappy family is unhappy in its own way.",
-                "Call me Ishmael.",
-                "In the beginning God created the heaven and the earth.",
-                "Whether I shall turn out to be the hero of my own life, or whether that station will be held by anybody else, these pages must show."
-            ];
-            const randomQuote = classicQuotes[Math.floor(Math.random() * classicQuotes.length)];
-            
-            document.getElementById('target-text').innerText = randomQuote;
-            document.getElementById('target-text').classList.remove('loading');
-        } catch (error) {
-            document.getElementById('target-text').innerText = "Failed to load data. Please refresh.";
+    // 고전 소설 데이터 (영문 + 한글 해석)
+    const classicData = [
+        {
+            title: "Pride and Prejudice (제인 오스틴)",
+            en: "It is a truth universally acknowledged, that a single man in possession of a good fortune, must be in want of a wife.",
+            ko: "재산이 꽤 있는 미혼 남성에게 아내가 필요할 것이라는 점은 보편적으로 인정받는 진리이다."
+        },
+        {
+            title: "Hamlet (셰익스피어)",
+            en: "To be, or not to be, that is the question.",
+            ko: "사느냐 죽느냐, 그것이 문제로다."
+        },
+        {
+            title: "Anna Karenina (레프 톨스토이)",
+            en: "All happy families are alike; each unhappy family is unhappy in its own way.",
+            ko: "행복한 가정은 모두 비슷하지만, 불행한 가정은 저마다의 이유로 불행하다."
+        },
+        {
+            title: "The Old Man and the Sea (어네스트 헤밍웨이)",
+            en: "But man is not made for defeat. A man can be destroyed but not defeated.",
+            ko: "인간은 패배하기 위해 태어난 것이 아니다. 파멸할 수는 있어도 패배할 수는 없다."
+        },
+        {
+            title: "Moby Dick (허먼 멜빌)",
+            en: "Call me Ishmael.",
+            ko: "나를 이스마엘이라 불러다오."
         }
+    ];
+
+    let currentIndex = 0;
+    let completedCount = 0;
+
+    const targetEl = document.getElementById('target-text');
+    const transEl = document.getElementById('translation-text');
+    const bookEl = document.getElementById('book-info');
+    const inputField = document.getElementById('typer');
+    const counterEl = document.getElementById('counter');
+
+    function updateContent() {
+        const current = classicData[currentIndex];
+        targetEl.innerText = current.en;
+        transEl.innerText = "💡 해석: " + current.ko;
+        bookEl.innerText = "📊 SOURCE: " + current.title;
+        inputField.value = '';
     }
 
-    const inputField = document.getElementById('typer');
     inputField.addEventListener('input', function() {
-        const target = document.getElementById('target-text').innerText;
-        if (this.value === target) {
-            alert('✅ DATA VERIFIED: Entry matches original text.');
-            this.value = '';
-            fetchClassicBook(); // 다음 문장으로 교체
+        const target = targetEl.innerText.trim();
+        const currentInput = this.value.trim();
+        
+        // 문장이 완전히 일치하면 알림창 없이 바로 다음으로!
+        if (currentInput === target) {
+            currentIndex = (currentIndex + 1) % classicData.length;
+            completedCount++;
+            counterEl.innerText = "COMPLETED: " + completedCount;
+            
+            // 시각적 효과: 셀을 잠깐 반짝이게 해서 성공했음을 알림
+            inputField.style.backgroundColor = "#e8f5e9";
+            setTimeout(() => {
+                inputField.style.backgroundColor = "transparent";
+                updateContent();
+            }, 200);
         }
     });
 
-    fetchClassicBook();
+    updateContent();
 </script>
 
 </body>
