@@ -2,143 +2,142 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>주간_업무_보고_및_데이터_취합_v2.1.xlsx</title>
+    <title>2024_하반기_운영비용_정산_및_성과지표_최종.xlsx</title>
     <style>
-        body { margin: 0; font-family: 'Malgun Gothic', 'Dotum', sans-serif; background: #fff; color: #333; font-size: 12px; }
-        .excel-header { background: #217346; color: white; padding: 5px 12px; font-size: 12px; display: flex; justify-content: space-between; align-items: center; }
-        .excel-menu { background: #f3f3f3; border-bottom: 1px solid #bbb; padding: 3px 10px; display: flex; gap: 12px; color: #444; }
-        .excel-formula-bar { border-bottom: 1px solid #bbb; padding: 4px 10px; display: flex; align-items: center; background: #fff; }
-        .fx { font-style: italic; font-weight: bold; color: #666; margin-right: 10px; border-right: 1px solid #ddd; padding-right: 10px; }
+        /* 엑셀 특유의 정갈한 맑은 고딕 스타일 */
+        body { margin: 0; font-family: 'Malgun Gothic', 'Segoe UI', sans-serif; background: #fff; color: #333; font-size: 11px; overflow: hidden; }
+        
+        /* 상단 바 디자인 */
+        .excel-top { background: #217346; color: white; padding: 4px 12px; font-size: 12px; display: flex; justify-content: space-between; align-items: center; }
+        .excel-ribbon { background: #f3f3f3; border-bottom: 1px solid #bbb; padding: 6px 15px; display: flex; gap: 15px; color: #444; border-top: 1px solid #ddd; }
+        .formula-bar { border-bottom: 1px solid #bbb; padding: 3px 10px; display: flex; align-items: center; background: #fff; height: 22px; }
+        .address-box { border-right: 1px solid #ddd; padding-right: 15px; margin-right: 10px; color: #666; font-weight: bold; }
 
-        /* 시트 레이아웃 */
-        .sheet-container { padding: 15px; background: #fff; height: calc(100vh - 120px); overflow-y: auto; }
+        /* 테이블 영역 */
+        .sheet-area { padding: 0; height: calc(100vh - 120px); overflow: auto; }
+        .excel-grid { border-collapse: collapse; width: 100%; table-layout: fixed; }
+        .excel-grid th { background: #e6e6e6; border: 1px solid #bbb; font-weight: normal; color: #666; height: 22px; text-align: center; }
+        .excel-grid td { border: 1px solid #ddd; padding: 4px 8px; height: 20px; vertical-align: middle; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         
-        /* 엑셀 테이블 스타일 */
-        .excel-table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
-        .excel-table th { background: #e6e6e6; border: 1px solid #bbb; padding: 4px 8px; font-weight: normal; text-align: center; }
-        .excel-table td { border: 1px solid #ddd; padding: 6px 10px; height: 22px; }
-        .col-index { background: #f0f0f0; width: 40px; text-align: center; color: #666; font-size: 11px; }
+        /* 열 번호 열 */
+        .row-idx { background: #f0f0f0; width: 35px; text-align: center; color: #888; border: 1px solid #bbb !important; }
+
+        /* 데이터 구분 스타일 */
+        .header-cell { background: #f9f9f9; font-weight: bold; text-align: center; color: #444; }
+        .num-cell { text-align: right; font-family: 'Arial', sans-serif; color: #444; }
+        .study-row { background: #fff; cursor: pointer; transition: 0.1s; }
+        .study-row:hover { background: #f1f8f5; }
         
-        /* 공부 영역 스타일 */
-        .study-area { background: #f9f9f9; cursor: pointer; transition: 0.2s; }
-        .study-area:hover { background: #f0f7f2; }
-        #korean-trans { color: #217346; font-weight: bold; display: none; margin-left: 10px; }
+        /* 텍스트 가독성 */
+        #eng-content { color: #1a1a1a; }
+        #kor-hint { color: #217346; font-weight: bold; display: none; margin-left: 8px; font-size: 10px; }
 
         /* 하단 탭 */
-        .bottom-tabs { position: fixed; bottom: 25px; left: 0; width: 100%; background: #f3f3f3; border-top: 1px solid #bbb; display: flex; padding-left: 20px; }
-        .tab { padding: 5px 15px; border-right: 1px solid #bbb; background: #fff; color: #217346; font-weight: bold; cursor: pointer; }
-        .tab-inactive { background: #f3f3f3; color: #666; font-weight: normal; }
+        .sheet-tabs { position: fixed; bottom: 22px; left: 0; width: 100%; background: #f3f3f3; border-top: 1px solid #bbb; display: flex; font-size: 11px; align-items: center; }
+        .active-tab { background: #fff; border-bottom: 3px solid #217346; padding: 5px 15px; color: #217346; font-weight: bold; border-right: 1px solid #bbb; }
+        .inactive-tab { padding: 5px 15px; color: #666; border-right: 1px solid #bbb; cursor: default; }
+
+        .footer-status { position: fixed; bottom: 0; width: 100%; background: #217346; color: white; font-size: 10px; padding: 3px 15px; display: flex; justify-content: space-between; }
         
-        .status-bar { position: fixed; bottom: 0; width: 100%; background: #217346; color: white; font-size: 11px; padding: 3px 15px; }
+        .control-btns { margin-top: 10px; padding-left: 10px; }
+        button { font-size: 10px; padding: 2px 8px; border: 1px solid #ccc; background: #fff; cursor: pointer; }
+        button:hover { background: #eee; }
     </style>
 </head>
 <body>
 
-<div class="excel-header">
-    <span>주간_업무_보고_및_데이터_취합_v2.1.xlsx - Excel</span>
-    <span style="font-size: 10px;">저장 완료</span>
-</div>
-<div class="excel-menu">
-    <span>파일</span> <span>홈</span> <span>삽입</span> <span>페이지 레이아웃</span> <span>수식</span> <span>데이터</span> <span>검토</span> <span>보기</span>
-</div>
-<div class="excel-formula-bar">
-    <span class="fx">fx</span>
-    <span id="formula-text" style="color: #333;">=IF(ERROR, "데이터 재확인", "정상")</span>
+<div class="excel-top">
+    <span>자동 저장됨: 2024_하반기_운영비용_정산_및_성과지표_최종.xlsx</span>
+    <span style="font-size: 10px;">사용자: Master_Admin</span>
 </div>
 
-<div class="sheet-container">
-    <h3 style="margin-top: 0; color: #444;">[보고] 1분기 운영 효율성 분석 및 해외 사례 검토</h3>
-    
-    <table class="excel-table">
+<div class="excel-ribbon">
+    <span>파일</span> <b>홈</b> <span>삽입</span> <span>그리기</span> <span>페이지 레이아웃</span> <span>수식</span> <span>데이터</span> <span>검토</span> <span>보기</span>
+</div>
+
+<div class="formula-bar">
+    <span class="address-box" id="current-cell">C14</span>
+    <span style="font-style: italic; color: #217346; font-weight: bold; margin-right: 10px;">fx</span>
+    <span id="formula-text">=VLOOKUP(B14, '글로벌_라이브러리'!$A$1:$Z$500, 3, FALSE)</span>
+</div>
+
+<div class="sheet-area">
+    <table class="excel-grid">
         <thead>
             <tr>
-                <th class="col-index"></th>
-                <th style="width: 150px;">항목</th>
-                <th>내용 및 데이터</th>
-                <th style="width: 120px;">비고</th>
+                <th style="width: 35px;"></th>
+                <th style="width: 50px;">A</th>
+                <th style="width: 150px;">B</th>
+                <th style="width: 400px;">C</th>
+                <th style="width: 150px;">D</th>
+                <th style="width: 100px;">E</th>
             </tr>
         </thead>
         <tbody>
-            <tr>
-                <td class="col-index">1</td>
-                <td style="background:#f9f9f9">보고서 제목</td>
-                <td>운영 프로세스 최적화 및 글로벌 벤치마킹 리포트</td>
-                <td>확정</td>
-            </tr>
-            <tr>
-                <td class="col-index">2</td>
-                <td style="background:#f9f9f9">담당자</td>
-                <td>운영지원팀 (내선 128)</td>
-                <td>-</td>
-            </tr>
-            <tr>
-                <td class="col-index">3</td>
-                <td style="background:#f9f9f9">업무 진행률</td>
-                <td>85% (데이터 검증 단계)</td>
-                <td style="color:blue">정상</td>
-            </tr>
-            <tr class="study-area" onclick="toggleAnswer()">
-                <td class="col-index">4</td>
-                <td style="background:#e8f5e9; font-weight:bold; color:#217346">해외 사례 원문</td>
+            <tr><td class="row-idx">1</td><td class="header-cell">No.</td><td class="header-cell">분류</td><td class="header-cell">세부 항목 (내역)</td><td class="header-cell">결재 금액</td><td class="header-cell">진행 상태</td></tr>
+            <tr><td class="row-idx">2</td><td style="text-align:center">101</td><td>고정비</td><td>강남 사무소 임차료 (2024-07)</td><td class="num-cell">45,000,000</td><td style="text-align:center; color:blue">완료</td></tr>
+            <tr><td class="row-idx">3</td><td style="text-align:center">102</td><td>소모품</td><td>전산 소모품 및 토너 구매</td><td class="num-cell">1,240,000</td><td style="text-align:center; color:blue">완료</td></tr>
+            <tr><td class="row-idx">4</td><td style="text-align:center">103</td><td>인건비</td><td>외주 인력 파견 비용 (8인)</td><td class="num-cell">32,800,000</td><td style="text-align:center; color:blue">완료</td></tr>
+            <tr><td class="row-idx">5</td><td class="row-idx" colspan="5" style="background:#eee; height:5px"></td></tr>
+            <tr><td class="row-idx">6</td><td class="header-cell" colspan="2" style="background:#fef9e7">해외 벤치마킹 참고 자료</td><td colspan="3" style="background:#fef9e7; font-size:10px; color:#888">※ 해외 지사 운영 가이드라인 발췌 내용</td></tr>
+            <tr class="study-row" onclick="toggleHint()">
+                <td class="row-idx">7</td>
+                <td style="text-align:center">Ref.</td>
+                <td style="font-weight:bold; color:#217346">핵심 구문(EN)</td>
                 <td>
-                    <span id="english-text">It is a truth universally acknowledged...</span>
-                    <span id="korean-trans"> (해석: 재산이 많은 미혼 남성에게 아내가 필요하다는 것은 보편적인 진리다.)</span>
+                    <span id="eng-content">It is a truth universally acknowledged...</span>
+                    <span id="kor-hint"> (로딩 중...)</span>
                 </td>
-                <td style="text-align:center">클릭하여 해석</td>
+                <td class="num-cell" style="color:#ccc">Source: Gutenberg</td>
+                <td style="text-align:center; font-weight:bold">검토 중</td>
             </tr>
-            <tr>
-                <td class="col-index">5</td>
-                <td style="background:#f9f9f9">기초 데이터 A</td>
-                <td>1,245,000</td>
-                <td>전주 대비 +2%</td>
-            </tr>
-            <tr>
-                <td class="col-index">6</td>
-                <td style="background:#f9f9f9">기초 데이터 B</td>
-                <td>892,300</td>
-                <td>유지</td>
-            </tr>
+            <tr><td class="row-idx">8</td><td style="text-align:center">104</td><td>마케팅</td><td>SNS 광고 집행 비용 (하반기)</td><td class="num-cell">12,500,000</td><td style="text-align:center; color:orange">결재대기</td></tr>
+            <tr><td class="row-idx">9</td><td style="text-align:center">105</td><td>복리후생</td><td>임직원 건강검진 패키지 지원</td><td class="num-cell">8,900,000</td><td style="text-align:center; color:orange">결재대기</td></tr>
+            <tr><td class="row-idx">10</td><td style="text-align:center">106</td><td>기타</td><td>예비비 편성 (전사 통합)</td><td class="num-cell">5,000,000</td><td style="text-align:center">대기</td></tr>
         </tbody>
     </table>
 
-    <div style="display: flex; gap: 20px;">
-        <button onclick="prev()" style="padding: 5px 15px; cursor:pointer;">이전 문장</button>
-        <button onclick="next()" style="padding: 5px 15px; cursor:pointer;">다음 문장 (업데이트)</button>
+    <div class="control-btns">
+        <button onclick="prev()">◀ 이전 항목</button>
+        <button onclick="next()">다음 항목 ▶</button>
     </div>
-
-    <p style="margin-top: 30px; color: #999;">* 본 데이터는 내부 보안 지침에 따라 관리됩니다.</p>
 </div>
 
-<div class="bottom-tabs">
-    <div class="tab">종합보고서</div>
-    <div class="tab tab-inactive">Raw_Data</div>
-    <div class="tab tab-inactive">참고문헌</div>
-    <div class="tab tab-inactive">+</div>
+<div class="sheet-tabs">
+    <div class="active-tab">2024_비용_정산</div>
+    <div class="inactive-tab">Raw_Data</div>
+    <div class="inactive-tab">시장조사_결과</div>
+    <div class="inactive-tab">글로벌_라이브러리</div>
 </div>
 
-<div class="status-bar">준비 | 계산 모드: 자동 | 합계: 0</div>
+<div class="footer-status">
+    <div>준비 | 수식 계산 완료</div>
+    <div>합계: 105,440,000 | 평균: 17,573,333 | 개수: 6 | 100%</div>
+</div>
 
 <script>
     const classicData = [
         { en: "It is a truth universally acknowledged...", ko: "보편적으로 인정받는 진리이다..." },
-        { en: "I'm on my way.", ko: "지금 가는 중이야." },
-        { en: "Can you keep a secret?", ko: "비밀 지킬 수 있어?" },
-        { en: "Better late than never.", ko: "늦더라도 하는 게 안 하는 것보다 낫다." },
-        { en: "Don't take it personally.", ko: "개인적으로 받아들이지 마 (기분 나쁘게 듣지 마)." }
+        { en: "To be, or not to be, that is the question.", ko: "사느냐 죽느냐, 그것이 문제로다." },
+        { en: "The early bird catches the worm.", ko: "일찍 일어나는 새가 벌레를 잡는다." },
+        { en: "Time is gold, but health is platinum.", ko: "시간은 금이지만, 건강은 플래티넘이다." },
+        { en: "Practice makes perfect in every field.", ko: "모든 분야에서 연습은 완벽을 만든다." }
     ];
 
     let index = 0;
 
-    function toggleAnswer() {
-        const trans = document.getElementById('korean-trans');
-        trans.style.display = (trans.style.display === 'none') ? 'inline' : 'none';
+    function toggleHint() {
+        const hint = document.getElementById('kor-hint');
+        hint.style.display = (hint.style.display === 'none' || hint.style.display === '') ? 'inline' : 'none';
     }
 
     function update() {
-        document.getElementById('english-text').innerText = classicData[index].en;
-        document.getElementById('korean-trans').innerText = " (해석: " + classicData[index].ko + ")";
-        document.getElementById('korean-trans').style.display = 'none';
-        document.getElementById('formula-text').innerText = `=FETCH_DATA("${classicData[index].en}")`;
+        document.getElementById('eng-content').innerText = classicData[index].en;
+        document.getElementById('kor-hint').innerText = " (해석: " + classicData[index].ko + ")";
+        document.getElementById('kor-hint').style.display = 'none';
+        
+        // 수식바 디테일 추가
+        document.getElementById('formula-text').innerText = `=VLOOKUP("${classicData[index].en.substring(0, 10)}...", '글로벌_라이브러리'!$A$1:$Z$500, 3, FALSE)`;
     }
 
     function next() {
@@ -150,6 +149,9 @@
         index = (index - 1 + classicData.length) % classicData.length;
         update();
     }
+
+    // 초기 세팅
+    update();
 </script>
 
 </body>
