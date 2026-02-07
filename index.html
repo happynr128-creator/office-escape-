@@ -2,166 +2,154 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>Q1_Global_Operations_Performance_Dashboard.xlsx</title>
+    <title>주간_업무_보고_및_데이터_취합_v2.1.xlsx</title>
     <style>
-        body { margin: 0; font-family: 'Segoe UI', 'Malgun Gothic', sans-serif; background: #f3f3f3; color: #333; overflow: hidden; font-size: 12px; }
-        .excel-header { background: #217346; color: white; padding: 6px 15px; font-size: 12px; font-weight: bold; display: flex; justify-content: space-between; }
-        .excel-menu { background: #fff; border-bottom: 1px solid #ddd; padding: 5px 15px; display: flex; gap: 15px; border-top: 1px solid #eee; }
+        body { margin: 0; font-family: 'Malgun Gothic', 'Dotum', sans-serif; background: #fff; color: #333; font-size: 12px; }
+        .excel-header { background: #217346; color: white; padding: 5px 12px; font-size: 12px; display: flex; justify-content: space-between; align-items: center; }
+        .excel-menu { background: #f3f3f3; border-bottom: 1px solid #bbb; padding: 3px 10px; display: flex; gap: 12px; color: #444; }
+        .excel-formula-bar { border-bottom: 1px solid #bbb; padding: 4px 10px; display: flex; align-items: center; background: #fff; }
+        .fx { font-style: italic; font-weight: bold; color: #666; margin-right: 10px; border-right: 1px solid #ddd; padding-right: 10px; }
+
+        /* 시트 레이아웃 */
+        .sheet-container { padding: 15px; background: #fff; height: calc(100vh - 120px); overflow-y: auto; }
         
-        /* 대시보드 레이아웃 */
-        .dashboard-container { display: grid; grid-template-columns: 250px 1fr 300px; gap: 10px; padding: 10px; height: calc(100vh - 100px); }
+        /* 엑셀 테이블 스타일 */
+        .excel-table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
+        .excel-table th { background: #e6e6e6; border: 1px solid #bbb; padding: 4px 8px; font-weight: normal; text-align: center; }
+        .excel-table td { border: 1px solid #ddd; padding: 6px 10px; height: 22px; }
+        .col-index { background: #f0f0f0; width: 40px; text-align: center; color: #666; font-size: 11px; }
         
-        /* 섹션 스타일 */
-        .widget { background: white; border: 1px solid #d4d4d4; padding: 10px; display: flex; flex-direction: column; }
-        .widget-title { font-weight: bold; color: #217346; border-bottom: 2px solid #217346; padding-bottom: 5px; margin-bottom: 10px; display: flex; justify-content: space-between; }
+        /* 공부 영역 스타일 */
+        .study-area { background: #f9f9f9; cursor: pointer; transition: 0.2s; }
+        .study-area:hover { background: #f0f7f2; }
+        #korean-trans { color: #217346; font-weight: bold; display: none; margin-left: 10px; }
 
-        /* 무한 로딩 데이터 그리드 */
-        .data-grid { flex: 1; overflow: hidden; font-family: 'Consolas', monospace; font-size: 11px; }
-        table { border-collapse: collapse; width: 100%; text-align: right; }
-        th { background: #f9f9f9; border: 1px solid #ddd; padding: 5px; font-weight: normal; }
-        td { border: 1px solid #eee; padding: 4px; color: #444; }
-        .highlight { color: #d32f2f; font-weight: bold; }
-        .growth { color: #2e7d32; }
-
-        /* 실시간 시스템 로그 */
-        .log-area { background: #1a1a1a; color: #00ff00; padding: 10px; font-family: 'Consolas', monospace; font-size: 10px; height: 150px; overflow: hidden; border-radius: 4px; }
-
-        /* 가짜 차트 영역 */
-        .chart-box { border: 1px dashed #ccc; flex: 1; display: flex; align-items: flex-end; gap: 5px; padding: 10px; position: relative; }
-        .bar { background: #217346; width: 100%; transition: height 0.5s ease; }
-
-        /* 상태 바 */
-        .status-bar { position: fixed; bottom: 0; width: 100%; background: #217346; color: white; font-size: 11px; padding: 4px 15px; display: flex; justify-content: space-between; }
+        /* 하단 탭 */
+        .bottom-tabs { position: fixed; bottom: 25px; left: 0; width: 100%; background: #f3f3f3; border-top: 1px solid #bbb; display: flex; padding-left: 20px; }
+        .tab { padding: 5px 15px; border-right: 1px solid #bbb; background: #fff; color: #217346; font-weight: bold; cursor: pointer; }
+        .tab-inactive { background: #f3f3f3; color: #666; font-weight: normal; }
         
-        /* 깜빡이는 효과 */
-        .blinker { animation: blink 1s infinite; }
-        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+        .status-bar { position: fixed; bottom: 0; width: 100%; background: #217346; color: white; font-size: 11px; padding: 3px 15px; }
     </style>
 </head>
 <body>
 
 <div class="excel-header">
-    <span>Excel - Quarterly_Global_Profit_Loss_Model_v4.2.xlsx</span>
-    <span>Auto-Save: ON | Sync: Stable</span>
+    <span>주간_업무_보고_및_데이터_취합_v2.1.xlsx - Excel</span>
+    <span style="font-size: 10px;">저장 완료</span>
 </div>
 <div class="excel-menu">
-    <b>File</b> <b>Home</b> <b>Insert</b> <b>Draw</b> <b>Page Layout</b> <b>Formulas</b> <b>Data</b> <b>Review</b> <b>View</b> <b>Automate</b>
+    <span>파일</span> <span>홈</span> <span>삽입</span> <span>페이지 레이아웃</span> <span>수식</span> <span>데이터</span> <span>검토</span> <span>보기</span>
+</div>
+<div class="excel-formula-bar">
+    <span class="fx">fx</span>
+    <span id="formula-text" style="color: #333;">=IF(ERROR, "데이터 재확인", "정상")</span>
 </div>
 
-<div class="dashboard-container">
-    <div class="widget">
-        <div class="widget-title">KPI Metrics <span class="blinker">●</span></div>
-        <div style="font-size: 10px; color: #666; margin-bottom: 15px;">Refresh Rate: 500ms</div>
-        <div id="kpi-list">
-            </div>
-        <div class="widget-title" style="margin-top:20px;">System Logs</div>
-        <div class="log-area" id="log-display">
-            Initializing sync...<br>
-            Connecting to server...<br>
-        </div>
+<div class="sheet-container">
+    <h3 style="margin-top: 0; color: #444;">[보고] 1분기 운영 효율성 분석 및 해외 사례 검토</h3>
+    
+    <table class="excel-table">
+        <thead>
+            <tr>
+                <th class="col-index"></th>
+                <th style="width: 150px;">항목</th>
+                <th>내용 및 데이터</th>
+                <th style="width: 120px;">비고</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td class="col-index">1</td>
+                <td style="background:#f9f9f9">보고서 제목</td>
+                <td>운영 프로세스 최적화 및 글로벌 벤치마킹 리포트</td>
+                <td>확정</td>
+            </tr>
+            <tr>
+                <td class="col-index">2</td>
+                <td style="background:#f9f9f9">담당자</td>
+                <td>운영지원팀 (내선 128)</td>
+                <td>-</td>
+            </tr>
+            <tr>
+                <td class="col-index">3</td>
+                <td style="background:#f9f9f9">업무 진행률</td>
+                <td>85% (데이터 검증 단계)</td>
+                <td style="color:blue">정상</td>
+            </tr>
+            <tr class="study-area" onclick="toggleAnswer()">
+                <td class="col-index">4</td>
+                <td style="background:#e8f5e9; font-weight:bold; color:#217346">해외 사례 원문</td>
+                <td>
+                    <span id="english-text">It is a truth universally acknowledged...</span>
+                    <span id="korean-trans"> (해석: 재산이 많은 미혼 남성에게 아내가 필요하다는 것은 보편적인 진리다.)</span>
+                </td>
+                <td style="text-align:center">클릭하여 해석</td>
+            </tr>
+            <tr>
+                <td class="col-index">5</td>
+                <td style="background:#f9f9f9">기초 데이터 A</td>
+                <td>1,245,000</td>
+                <td>전주 대비 +2%</td>
+            </tr>
+            <tr>
+                <td class="col-index">6</td>
+                <td style="background:#f9f9f9">기초 데이터 B</td>
+                <td>892,300</td>
+                <td>유지</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div style="display: flex; gap: 20px;">
+        <button onclick="prev()" style="padding: 5px 15px; cursor:pointer;">이전 문장</button>
+        <button onclick="next()" style="padding: 5px 15px; cursor:pointer;">다음 문장 (업데이트)</button>
     </div>
 
-    <div class="widget">
-        <div class="widget-title">Real-time Transaction Analysis (Global)</div>
-        <div class="data-grid">
-            <table id="data-table">
-                <thead>
-                    <tr><th>ID</th><th>Region</th><th>Revenue</th><th>Delta</th><th>Status</th></tr>
-                </thead>
-                <tbody id="data-body">
-                    </tbody>
-            </table>
-        </div>
-    </div>
-
-    <div class="widget">
-        <div class="widget-title">Visualized Trends</div>
-        <div class="chart-box" id="chart-container">
-            </div>
-        <div style="margin-top: 20px;">
-            <div class="widget-title">Quick Notes</div>
-            <textarea style="width: 100%; height: 150px; border: 1px solid #ddd; font-size: 11px; padding: 5px; resize: none;">
-- Q1 실적 데이터 취합 중 (Region A~F)
-- 환율 변동에 따른 오차 범위 보정 필요
-- 가중 평균값 재계산 (Michaelmas 기준)
-- 다음 회의 안건: 운영 효율 극대화 방안
-            </textarea>
-        </div>
-    </div>
+    <p style="margin-top: 30px; color: #999;">* 본 데이터는 내부 보안 지침에 따라 관리됩니다.</p>
 </div>
 
-<div class="status-bar">
-    <div id="loading-msg">Ready - Calculating complex formulas...</div>
-    <div>CPU Usage: 12% | RAM: 1.4GB | Cell: $AD$256</div>
+<div class="bottom-tabs">
+    <div class="tab">종합보고서</div>
+    <div class="tab tab-inactive">Raw_Data</div>
+    <div class="tab tab-inactive">참고문헌</div>
+    <div class="tab tab-inactive">+</div>
 </div>
+
+<div class="status-bar">준비 | 계산 모드: 자동 | 합계: 0</div>
 
 <script>
-    // 1. 가짜 데이터 생성기
-    const regions = ['North Am', 'Europe', 'APAC', 'LATAM', 'Middle East', 'Africa'];
-    const statuses = ['Pending', 'Verified', 'Processing', 'Synced'];
-
-    function generateRow() {
-        const id = Math.floor(Math.random() * 9000) + 1000;
-        const region = regions[Math.floor(Math.random() * regions.length)];
-        const rev = (Math.random() * 5000).toFixed(2);
-        const delta = (Math.random() * 10 - 5).toFixed(2);
-        const status = statuses[Math.floor(Math.random() * statuses.length)];
-        
-        const deltaClass = delta > 0 ? 'growth' : 'highlight';
-        const deltaSymbol = delta > 0 ? '▲' : '▼';
-
-        return `<tr><td>${id}</td><td>${region}</td><td>$${rev}</td><td class="${deltaClass}">${deltaSymbol}${Math.abs(delta)}%</td><td>${status}</td></tr>`;
-    }
-
-    // 2. 데이터 시트 업데이트 (계속 변함)
-    const dataBody = document.getElementById('data-body');
-    for(let i=0; i<25; i++) dataBody.innerHTML += generateRow();
-
-    setInterval(() => {
-        dataBody.deleteRow(-1);
-        const newRow = dataBody.insertRow(0);
-        newRow.innerHTML = generateRow().replace('<tr>', '').replace('</tr>', '');
-    }, 800);
-
-    // 3. 로그 업데이트
-    const logDisplay = document.getElementById('log-display');
-    const logMsgs = [
-        "FETCHING data from SQL_SERVER_01...",
-        "DATA_POINT validated.",
-        "Updating Pivot Cache...",
-        "Recalculating macro 'Auto_Calc_V2'...",
-        "Warning: High latency in APAC node.",
-        "Buffer cleared. Proceeding..."
+    const classicData = [
+        { en: "It is a truth universally acknowledged...", ko: "보편적으로 인정받는 진리이다..." },
+        { en: "I'm on my way.", ko: "지금 가는 중이야." },
+        { en: "Can you keep a secret?", ko: "비밀 지킬 수 있어?" },
+        { en: "Better late than never.", ko: "늦더라도 하는 게 안 하는 것보다 낫다." },
+        { en: "Don't take it personally.", ko: "개인적으로 받아들이지 마 (기분 나쁘게 듣지 마)." }
     ];
 
-    setInterval(() => {
-        const msg = logMsgs[Math.floor(Math.random() * logMsgs.length)];
-        logDisplay.innerHTML += `> ${msg}<br>`;
-        if(logDisplay.innerHTML.length > 500) logDisplay.innerHTML = logDisplay.innerHTML.substring(200);
-        logDisplay.scrollTop = logDisplay.scrollHeight;
-    }, 1500);
+    let index = 0;
 
-    // 4. 가짜 차트 업데이트
-    const chartContainer = document.getElementById('chart-container');
-    for(let i=0; i<12; i++) {
-        const bar = document.createElement('div');
-        bar.className = 'bar';
-        bar.style.height = Math.random() * 100 + '%';
-        chartContainer.appendChild(bar);
+    function toggleAnswer() {
+        const trans = document.getElementById('korean-trans');
+        trans.style.display = (trans.style.display === 'none') ? 'inline' : 'none';
     }
 
-    setInterval(() => {
-        const bars = document.querySelectorAll('.bar');
-        bars.forEach(bar => {
-            bar.style.height = Math.random() * 100 + '%';
-        });
-    }, 2000);
+    function update() {
+        document.getElementById('english-text').innerText = classicData[index].en;
+        document.getElementById('korean-trans').innerText = " (해석: " + classicData[index].ko + ")";
+        document.getElementById('korean-trans').style.display = 'none';
+        document.getElementById('formula-text').innerText = `=FETCH_DATA("${classicData[index].en}")`;
+    }
 
-    // 5. 상태 표시줄 메시지
-    const loadingMsgs = ["Calculating formulas...", "Refreshing Pivot Table...", "Syncing with Cloud...", "Formatting report..."];
-    setInterval(() => {
-        document.getElementById('loading-msg').innerText = loadingMsgs[Math.floor(Math.random() * loadingMsgs.length)];
-    }, 3000);
+    function next() {
+        index = (index + 1) % classicData.length;
+        update();
+    }
+
+    function prev() {
+        index = (index - 1 + classicData.length) % classicData.length;
+        update();
+    }
 </script>
 
 </body>
