@@ -2,134 +2,227 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>Global_Literature_Review_2026.xlsx</title>
+    <title>Daily_English_Learning_Report_2026.xlsx</title>
     <style>
         body { margin: 0; font-family: 'Segoe UI', sans-serif; background: #f3f3f3; color: #333; overflow: hidden; }
-        .excel-header { background: #217346; color: white; padding: 6px 15px; font-size: 12px; font-weight: bold; }
+        .excel-header { background: #217346; color: white; padding: 6px 15px; font-size: 12px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
         .excel-menu { background: #fff; border-bottom: 1px solid #ddd; padding: 5px 15px; font-size: 13px; color: #444; display: flex; gap: 15px; }
         
-        /* 문장 가이드 영역 */
-        .reference-area { background: #fff; border: 1px solid #217346; margin: 15px; padding: 15px; border-left: 5px solid #217346; box-shadow: 2px 2px 5px rgba(0,0,0,0.05); }
-        #book-info { font-weight: bold; color: #217346; display: block; margin-bottom: 5px; font-size: 13px; }
-        #target-text { font-size: 16px; line-height: 1.4; color: #111; font-weight: 500; margin-bottom: 8px; }
-        #translation-text { font-size: 14px; color: #666; border-top: 1px solid #eee; pt: 8px; margin-top: 8px; font-family: 'Malgun Gothic', sans-serif; }
+        /* 학습 영역 컨테이너 */
+        .learning-container { display: flex; height: calc(100vh - 100px); }
+        
+        /* 왼쪽: 영어 문장 및 해석 영역 */
+        .left-panel { flex: 2; background: #fff; border-right: 1px solid #ddd; overflow-y: auto; padding: 15px; box-shadow: 2px 0 5px rgba(0,0,0,0.02); }
+        .question-box { background: #e8f5e9; border: 1px solid #217346; padding: 15px; margin-bottom: 20px; border-radius: 4px; }
+        .question-text { font-size: 18px; line-height: 1.5; font-weight: bold; color: #1a1a1a; margin-bottom: 10px; font-family: 'Segoe UI', sans-serif; }
+        .answer-area { border-top: 1px dashed #ccc; padding-top: 15px; margin-top: 15px; }
+        .user-translation-input { width: calc(100% - 10px); padding: 8px; border: 1px solid #ccc; border-radius: 3px; font-size: 14px; margin-bottom: 10px; font-family: 'Malgun Gothic', sans-serif; }
+        .check-button { background: #217346; color: white; border: none; padding: 8px 15px; border-radius: 3px; cursor: pointer; font-size: 13px; }
+        .check-button:hover { background: #1a5a35; }
+        .translation-feedback { margin-top: 10px; padding: 10px; background: #f0f0f0; border-radius: 3px; font-size: 14px; display: none; }
+        .correct-answer { color: #1a5a35; font-weight: bold; margin-bottom: 5px; }
+        .mistakes { color: #b71c1c; font-style: italic; }
 
-        /* 엑셀 시트 영역 */
-        .sheet-container { background: white; height: calc(100vh - 250px); overflow: auto; }
+        /* 오른쪽: 타이핑 연습 엑셀 시트 */
+        .right-panel { flex: 3; background: #f9f9f9; overflow-y: auto; padding: 15px; }
+        .typing-instruction { font-size: 13px; color: #555; margin-bottom: 10px; }
         table { border-collapse: collapse; width: 100%; table-layout: fixed; }
         th { background: #e6e6e6; border: 1px solid #d4d4d4; font-weight: normal; font-size: 11px; height: 20px; }
-        td { border: 1px solid #d4d4d4; height: 35px; font-size: 14px; padding: 0 5px; }
+        td { border: 1px solid #d4d4d4; height: 35px; padding: 0 5px; }
         .row-num { background: #e6e6e6; text-align: center; width: 40px; color: #666; }
         
-        /* 입력 셀 */
         .typing-input { width: 100%; height: 100%; border: none; outline: none; background: transparent; font-family: 'Consolas', monospace; font-size: 15px; color: #0000ff; }
         .active-cell { outline: 2px solid #217346; background: #fff; }
+
+        /* 타이핑 피드백 (글자별) */
+        #typing-display { font-size: 16px; line-height: 1.5; letter-spacing: 0.5px; margin-bottom: 10px; font-family: 'Consolas', monospace; min-height: 40px; padding: 5px; background: #fdfdfd; border: 1px solid #eee; border-radius: 3px; }
+        .char-correct { color: #ccc; }
+        .char-current { background-color: #ffeb3b; color: #000; font-weight: bold; }
+        .char-wrong { background-color: #ffcdd2; color: #b71c1c; }
+
+        .status-bar { position: fixed; bottom: 0; width: 100%; background: #217346; color: white; font-size: 11px; padding: 4px 15px; display: flex; justify-content: space-between; }
         
-        .status-bar { position: fixed; bottom: 0; width: 100%; background: #217346; color: white; font-size: 11px; padding: 4px 12px; }
-        .progress-indicator { color: #ffeb3b; font-weight: bold; margin-left: 10px; }
+        .nav-buttons { display: flex; gap: 10px; }
+        .nav-buttons button { background: #4CAF50; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-size: 12px; }
+        .nav-buttons button:hover { background: #388E3C; }
+        .nav-buttons button:disabled { background: #a5d6a7; cursor: not-allowed; }
     </style>
 </head>
 <body>
 
-<div class="excel-header">Excel - Annual_Classic_Literature_Database.xlsx</div>
+<div class="excel-header">
+    <span>Excel - Daily_English_Study_Report.xlsx</span>
+    <div class="nav-buttons">
+        <button id="prevBtn" disabled>◀ 이전</button>
+        <button id="nextBtn">다음 ▶</button>
+    </div>
+</div>
 <div class="excel-menu">
     <span>File</span> <span>Home</span> <span>Insert</span> <span>Data</span> <span>Review</span> <span>View</span>
 </div>
 
-<div class="reference-area">
-    <span id="book-info">📊 DATA SOURCE: Classic Literature Archive</span>
-    <div id="target-text">Loading text...</div>
-    <div id="translation-text">해석을 불러오는 중...</div>
-</div>
+<div class="learning-container">
+    <div class="left-panel">
+        <div class="question-box">
+            <span style="font-size: 12px; color: #555; display: block; margin-bottom: 5px;">📍 TODAY'S PHRASE (오늘의 표현)</span>
+            <div id="english-phrase" class="question-text">Loading English phrase...</div>
+        </div>
 
-<div class="sheet-container">
-    <table>
-        <tr><th></th><th>A</th><th>B</th><th>C</th><th>D</th><th>E</th></tr>
-        <tr>
-            <td class="row-num">1</td>
-            <td colspan="5" class="active-cell">
-                <input type="text" id="typer" class="typing-input" placeholder="여기에 영문을 입력하세요..." autocomplete="off" autofocus>
-            </td>
-        </tr>
-        <script>
-            for(let i=2; i<=25; i++) {
-                document.write(`<tr><td class="row-num">${i}</td><td></td><td></td><td></td><td></td><td></td></tr>`);
-            }
-        </script>
-    </table>
+        <div class="answer-area">
+            <span style="font-size: 12px; color: #555; display: block; margin-bottom: 8px;">✏️ YOUR TRANSLATION (나의 해석)</span>
+            <textarea id="user-translation" class="user-translation-input" rows="3" placeholder="여기에 당신의 해석을 입력해보세요."></textarea>
+            <button id="check-translation-btn" class="check-button">해석 확인</button>
+            <div id="translation-feedback" class="translation-feedback">
+                <div class="correct-answer">✔️ 정답: <span id="correct-ko"></span></div>
+                <div class="mistakes" id="mistake-feedback"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="right-panel">
+        <div class="typing-instruction">
+            <span style="font-size: 12px; color: #217346; font-weight: bold;">📝 EXCEL TYPING EXERCISE (엑셀 입력 연습)</span><br>
+            <span style="font-size: 11px; color: #666;">위 영문 문장을 아래 셀에 똑같이 입력하세요.</span>
+        </div>
+        <div id="typing-display"></div> <table>
+            <tr><th></th><th>A</th><th>B</th><th>C</th><th>D</th><th>E</th></tr>
+            <tr>
+                <td class="row-num">1</td>
+                <td colspan="5" class="active-cell">
+                    <input type="text" id="typer" class="typing-input" placeholder="Start typing here..." autocomplete="off" autofocus>
+                </td>
+            </tr>
+            <script>
+                for(let i=2; i<=15; i++) { // 더 많은 행을 만들 필요가 없어 줄임
+                    document.write(`<tr><td class="row-num">${i}</td><td></td><td></td><td></td><td></td><td></td></tr>`);
+                }
+            </script>
+        </table>
+    </div>
 </div>
 
 <div class="status-bar">
-    READY | LANGUAGE: ENGLISH-KOREAN | <span id="counter">COMPLETED: 0</span>
+    <div>📊 REPORTING: Current Progress</div>
+    <div id="progress-status">PHRASE <span id="current-num">1</span> OF <span id="total-num">5</span> | MEMORIZED: 0</div>
 </div>
 
 <script>
-    // 고전 소설 데이터 (영문 + 한글 해석)
-    const classicData = [
-        {
-            title: "Pride and Prejudice (제인 오스틴)",
-            en: "It is a truth universally acknowledged, that a single man in possession of a good fortune, must be in want of a wife.",
-            ko: "재산이 꽤 있는 미혼 남성에게 아내가 필요할 것이라는 점은 보편적으로 인정받는 진리이다."
-        },
-        {
-            title: "Hamlet (셰익스피어)",
-            en: "To be, or not to be, that is the question.",
-            ko: "사느냐 죽느냐, 그것이 문제로다."
-        },
-        {
-            title: "Anna Karenina (레프 톨스토이)",
-            en: "All happy families are alike; each unhappy family is unhappy in its own way.",
-            ko: "행복한 가정은 모두 비슷하지만, 불행한 가정은 저마다의 이유로 불행하다."
-        },
-        {
-            title: "The Old Man and the Sea (어네스트 헤밍웨이)",
-            en: "But man is not made for defeat. A man can be destroyed but not defeated.",
-            ko: "인간은 패배하기 위해 태어난 것이 아니다. 파멸할 수는 있어도 패배할 수는 없다."
-        },
-        {
-            title: "Moby Dick (허먼 멜빌)",
-            en: "Call me Ishmael.",
-            ko: "나를 이스마엘이라 불러다오."
-        }
+    const phrases = [
+        { en: "Cut to the chase.", ko: "바로 본론으로 들어가.", details: "불필요한 얘기는 건너뛰고 핵심만 말하라는 의미입니다. 회의나 대화에서 자주 사용돼요." },
+        { en: "It's a piece of cake.", ko: "그거 식은 죽 먹기야.", details: "아주 쉽다는 뜻으로, 'piece of cake'는 케이크 한 조각처럼 쉽다는 비유입니다." },
+        { en: "Let's play it by ear.", ko: "상황 봐서 결정하자.", details: "미리 계획하기보다 그때그때 상황에 맞춰 유연하게 대처하자는 표현입니다." },
+        { en: "I'm all ears.", ko: "경청하고 있어. (귀 기울여 듣고 있어.)", details: "상대방의 말을 주의 깊게 듣고 있을 때 쓰는 표현으로, '모든 귀가 다 너에게 집중되어 있다'는 뜻입니다." },
+        { en: "No sweat.", ko: "별거 아니야. (걱정 마.)", details: "어렵지 않거나 문제가 되지 않는다는 뜻으로, '땀 흘릴 일도 아니다'라는 비유입니다." },
+        { en: "Hit the road.", ko: "출발하자. (가자.)", details: "어떤 장소를 떠나 여행이나 이동을 시작할 때 사용하는 표현입니다." },
+        { en: "Bite the bullet.", ko: "이를 악물고 참다. (고통을 감내하다.)", details: "어렵거나 불쾌한 상황을 받아들이고 견뎌낼 때 사용합니다." }
     ];
 
-    let currentIndex = 0;
-    let completedCount = 0;
+    let currentPhraseIndex = 0;
+    let memorizedCount = 0;
 
-    const targetEl = document.getElementById('target-text');
-    const transEl = document.getElementById('translation-text');
-    const bookEl = document.getElementById('book-info');
-    const inputField = document.getElementById('typer');
-    const counterEl = document.getElementById('counter');
+    const englishPhraseEl = document.getElementById('english-phrase');
+    const userTranslationInput = document.getElementById('user-translation');
+    const checkTranslationBtn = document.getElementById('check-translation-btn');
+    const translationFeedbackEl = document.getElementById('translation-feedback');
+    const correctKoEl = document.getElementById('correct-ko');
+    const mistakeFeedbackEl = document.getElementById('mistake-feedback');
+    const typingDisplayEl = document.getElementById('typing-display');
+    const typerInput = document.getElementById('typer');
+    const currentNumEl = document.getElementById('current-num');
+    const totalNumEl = document.getElementById('total-num');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const progressStatusEl = document.getElementById('progress-status');
 
-    function updateContent() {
-        const current = classicData[currentIndex];
-        targetEl.innerText = current.en;
-        transEl.innerText = "💡 해석: " + current.ko;
-        bookEl.innerText = "📊 SOURCE: " + current.title;
-        inputField.value = '';
+    totalNumEl.innerText = phrases.length;
+
+    function renderPhrase() {
+        const phrase = phrases[currentPhraseIndex];
+        englishPhraseEl.innerText = phrase.en;
+        userTranslationInput.value = '';
+        translationFeedbackEl.style.display = 'none';
+        typerInput.value = '';
+        updateTypingDisplay();
+        updateNavigationButtons();
+        currentNumEl.innerText = currentPhraseIndex + 1;
     }
 
-    inputField.addEventListener('input', function() {
-        const target = targetEl.innerText.trim();
-        const currentInput = this.value.trim();
-        
-        // 문장이 완전히 일치하면 알림창 없이 바로 다음으로!
-        if (currentInput === target) {
-            currentIndex = (currentIndex + 1) % classicData.length;
-            completedCount++;
-            counterEl.innerText = "COMPLETED: " + completedCount;
-            
-            // 시각적 효과: 셀을 잠깐 반짝이게 해서 성공했음을 알림
-            inputField.style.backgroundColor = "#e8f5e9";
-            setTimeout(() => {
-                inputField.style.backgroundColor = "transparent";
-                updateContent();
-            }, 200);
+    function updateTypingDisplay() {
+        const target = phrases[currentPhraseIndex].en;
+        const userInput = typerInput.value;
+        let html = '';
+        for (let i = 0; i < target.length; i++) {
+            if (i < userInput.length) {
+                html += `<span class="${userInput[i] === target[i] ? 'char-correct' : 'char-wrong'}">${target[i]}</span>`;
+            } else if (i === userInput.length) {
+                html += `<span class="char-current">${target[i]}</span>`;
+            } else {
+                html += `<span>${target[i]}</span>`;
+            }
+        }
+        typingDisplayEl.innerHTML = html;
+        if (userInput === target) {
+             typingDisplayEl.style.backgroundColor = "#e8f5e9"; // 성공 시 잠시 배경색 변경
+             setTimeout(() => typingDisplayEl.style.backgroundColor = "transparent", 200);
+        }
+    }
+
+    function updateNavigationButtons() {
+        prevBtn.disabled = currentPhraseIndex === 0;
+        nextBtn.disabled = currentPhraseIndex === phrases.length - 1 && typerInput.value !== phrases[currentPhraseIndex].en; // 마지막 문장을 다 쳐야 다음 비활성화
+    }
+
+    prevBtn.addEventListener('click', () => {
+        if (currentPhraseIndex > 0) {
+            currentPhraseIndex--;
+            renderPhrase();
         }
     });
 
-    updateContent();
+    nextBtn.addEventListener('click', () => {
+        // 현재 문장을 다 치지 않으면 넘어가지 못하도록 (암기 효과 증대)
+        if (typerInput.value !== phrases[currentPhraseIndex].en) {
+            alert('먼저 현재 문장을 정확히 입력해야 다음으로 넘어갈 수 있습니다.');
+            return;
+        }
+        if (currentPhraseIndex < phrases.length - 1) {
+            currentPhraseIndex++;
+            renderPhrase();
+        } else {
+            alert('모든 문장을 학습하셨습니다! 다음 업데이트를 기대해주세요.');
+            // 모든 문장을 다 외웠을 때 어떤 액션을 할지 여기에 추가
+        }
+    });
+
+    checkTranslationBtn.addEventListener('click', () => {
+        const userTrans = userTranslationInput.value.trim();
+        const correctTrans = phrases[currentPhraseIndex].ko;
+        const details = phrases[currentPhraseIndex].details;
+
+        correctKoEl.innerText = correctTrans;
+        mistakeFeedbackEl.innerText = details || "";
+        translationFeedbackEl.style.display = 'block';
+
+        // 여기에서 사용자 번역과 정답 번역을 비교하여 차이점을 보여주는 기능을 추가할 수 있습니다.
+        // (ex. 텍스트 유사도 라이브러리 활용)
+    });
+
+    typerInput.addEventListener('input', updateTypingDisplay);
+    typerInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            const target = phrases[currentPhraseIndex].en;
+            if (typerInput.value === target) {
+                // 문장을 정확히 입력하면 '외웠음'으로 간주하고 상태 업데이트
+                memorizedCount++;
+                progressStatusEl.innerHTML = `PHRASE <span id="current-num">${currentPhraseIndex + 1}</span> OF <span id="total-num">${phrases.length}</span> | MEMORIZED: ${memorizedCount}`;
+                updateNavigationButtons(); // '다음' 버튼 활성화 여부 다시 검사
+            }
+        }
+    });
+
+
+    // 초기 로드
+    renderPhrase();
 </script>
 
 </body>
