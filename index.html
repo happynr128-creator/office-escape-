@@ -2,227 +2,206 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>Daily_English_Learning_Report_2026.xlsx</title>
+    <title>2026_Project_Gutenberg_Full_Sync.xlsx</title>
     <style>
-        body { margin: 0; font-family: 'Segoe UI', sans-serif; background: #f3f3f3; color: #333; overflow: hidden; }
-        .excel-header { background: #217346; color: white; padding: 6px 15px; font-size: 12px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
+        body { margin: 0; font-family: 'Segoe UI', 'Malgun Gothic', sans-serif; background: #f3f3f3; color: #333; overflow: hidden; }
+        .excel-header { background: #217346; color: white; padding: 6px 15px; font-size: 12px; font-weight: bold; }
         .excel-menu { background: #fff; border-bottom: 1px solid #ddd; padding: 5px 15px; font-size: 13px; color: #444; display: flex; gap: 15px; }
         
-        /* 학습 영역 컨테이너 */
-        .learning-container { display: flex; height: calc(100vh - 100px); }
+        /* 메인 컨테이너 */
+        .main-container { padding: 20px; display: flex; flex-direction: column; align-items: center; height: calc(100vh - 150px); }
         
-        /* 왼쪽: 영어 문장 및 해석 영역 */
-        .left-panel { flex: 2; background: #fff; border-right: 1px solid #ddd; overflow-y: auto; padding: 15px; box-shadow: 2px 0 5px rgba(0,0,0,0.02); }
-        .question-box { background: #e8f5e9; border: 1px solid #217346; padding: 15px; margin-bottom: 20px; border-radius: 4px; }
-        .question-text { font-size: 18px; line-height: 1.5; font-weight: bold; color: #1a1a1a; margin-bottom: 10px; font-family: 'Segoe UI', sans-serif; }
-        .answer-area { border-top: 1px dashed #ccc; padding-top: 15px; margin-top: 15px; }
-        .user-translation-input { width: calc(100% - 10px); padding: 8px; border: 1px solid #ccc; border-radius: 3px; font-size: 14px; margin-bottom: 10px; font-family: 'Malgun Gothic', sans-serif; }
-        .check-button { background: #217346; color: white; border: none; padding: 8px 15px; border-radius: 3px; cursor: pointer; font-size: 13px; }
-        .check-button:hover { background: #1a5a35; }
-        .translation-feedback { margin-top: 10px; padding: 10px; background: #f0f0f0; border-radius: 3px; font-size: 14px; display: none; }
-        .correct-answer { color: #1a5a35; font-weight: bold; margin-bottom: 5px; }
-        .mistakes { color: #b71c1c; font-style: italic; }
+        /* 상단 날짜 선택 바 (Day Selector) */
+        .day-selector { display: flex; gap: 5px; margin-bottom: 15px; flex-wrap: wrap; justify-content: center; }
+        .day-btn { border: 1px solid #217346; background: white; color: #217346; padding: 5px 12px; cursor: pointer; font-size: 12px; border-radius: 3px; }
+        .day-btn.active { background: #217346; color: white; font-weight: bold; }
+        .day-btn:hover { background: #e8f5e9; }
 
-        /* 오른쪽: 타이핑 연습 엑셀 시트 */
-        .right-panel { flex: 3; background: #f9f9f9; overflow-y: auto; padding: 15px; }
-        .typing-instruction { font-size: 13px; color: #555; margin-bottom: 10px; }
-        table { border-collapse: collapse; width: 100%; table-layout: fixed; }
-        th { background: #e6e6e6; border: 1px solid #d4d4d4; font-weight: normal; font-size: 11px; height: 20px; }
-        td { border: 1px solid #d4d4d4; height: 35px; padding: 0 5px; }
-        .row-num { background: #e6e6e6; text-align: center; width: 40px; color: #666; }
+        .tab-group { display: flex; margin-bottom: 15px; background: #e6e6e6; border-radius: 5px; padding: 3px; }
+        .tab-btn { border: none; padding: 8px 18px; cursor: pointer; border-radius: 4px; font-size: 13px; background: transparent; }
+        .tab-btn.active { background: white; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+
+        /* 학습 카드 */
+        .study-card { background: white; border: 1px solid #d4d4d4; width: 95%; max-width: 650px; box-shadow: 2px 2px 10px rgba(0,0,0,0.1); border-radius: 4px; }
+        .card-header { background: #f9f9f9; padding: 10px 15px; font-size: 11px; color: #888; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; }
+        .content-area { padding: 40px 25px; text-align: center; min-height: 180px; display: flex; flex-direction: column; justify-content: center; cursor: pointer; }
+        #main-text { font-size: 19px; font-weight: bold; color: #1a1a1a; margin-bottom: 20px; line-height: 1.5; }
+        #sub-text { font-size: 16px; color: #444; background: #f1f8f5; padding: 12px; border-radius: 5px; visibility: hidden; line-height: 1.6; }
         
-        .typing-input { width: 100%; height: 100%; border: none; outline: none; background: transparent; font-family: 'Consolas', monospace; font-size: 15px; color: #0000ff; }
-        .active-cell { outline: 2px solid #217346; background: #fff; }
+        .btn-group { display: flex; border-top: 1px solid #eee; }
+        .action-btn { flex: 1; padding: 15px; border: none; background: white; cursor: pointer; font-size: 14px; }
+        .action-btn:hover { background: #f5f5f5; font-weight: bold; }
+        .action-btn.check-btn { background: #217346 !important; color: white; }
 
-        /* 타이핑 피드백 (글자별) */
-        #typing-display { font-size: 16px; line-height: 1.5; letter-spacing: 0.5px; margin-bottom: 10px; font-family: 'Consolas', monospace; min-height: 40px; padding: 5px; background: #fdfdfd; border: 1px solid #eee; border-radius: 3px; }
-        .char-correct { color: #ccc; }
-        .char-current { background-color: #ffeb3b; color: #000; font-weight: bold; }
-        .char-wrong { background-color: #ffcdd2; color: #b71c1c; }
-
+        /* 엑셀 배경 그리드 */
+        .bg-grid { position: fixed; top: 120px; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.15; pointer-events: none; }
+        .grid-table { border-collapse: collapse; width: 100%; }
+        .grid-table td { border: 1px solid #d4d4d4; height: 28px; }
+        
         .status-bar { position: fixed; bottom: 0; width: 100%; background: #217346; color: white; font-size: 11px; padding: 4px 15px; display: flex; justify-content: space-between; }
-        
-        .nav-buttons { display: flex; gap: 10px; }
-        .nav-buttons button { background: #4CAF50; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-size: 12px; }
-        .nav-buttons button:hover { background: #388E3C; }
-        .nav-buttons button:disabled { background: #a5d6a7; cursor: not-allowed; }
     </style>
 </head>
 <body>
 
-<div class="excel-header">
-    <span>Excel - Daily_English_Study_Report.xlsx</span>
-    <div class="nav-buttons">
-        <button id="prevBtn" disabled>◀ 이전</button>
-        <button id="nextBtn">다음 ▶</button>
-    </div>
-</div>
-<div class="excel-menu">
-    <span>File</span> <span>Home</span> <span>Insert</span> <span>Data</span> <span>Review</span> <span>View</span>
-</div>
+<div class="excel-header">Excel - Pride_and_Prejudice_Full_Archive.xlsx</div>
+<div class="excel-menu">파일 &nbsp; 홈 &nbsp; 삽입 &nbsp; 데이터 &nbsp; 검토 &nbsp; 보기 &nbsp; 도움말</div>
 
-<div class="learning-container">
-    <div class="left-panel">
-        <div class="question-box">
-            <span style="font-size: 12px; color: #555; display: block; margin-bottom: 5px;">📍 TODAY'S PHRASE (오늘의 표현)</span>
-            <div id="english-phrase" class="question-text">Loading English phrase...</div>
+<div class="main-container">
+    <div class="day-selector" id="day-selector">
         </div>
 
-        <div class="answer-area">
-            <span style="font-size: 12px; color: #555; display: block; margin-bottom: 8px;">✏️ YOUR TRANSLATION (나의 해석)</span>
-            <textarea id="user-translation" class="user-translation-input" rows="3" placeholder="여기에 당신의 해석을 입력해보세요."></textarea>
-            <button id="check-translation-btn" class="check-button">해석 확인</button>
-            <div id="translation-feedback" class="translation-feedback">
-                <div class="correct-answer">✔️ 정답: <span id="correct-ko"></span></div>
-                <div class="mistakes" id="mistake-feedback"></div>
-            </div>
-        </div>
+    <div class="tab-group">
+        <button id="learnTab" class="tab-btn active" onclick="setMode('learn')">📖 학습 모드</button>
+        <button id="quizTab" class="tab-btn" onclick="setMode('quiz')">❓ 퀴즈 모드</button>
     </div>
 
-    <div class="right-panel">
-        <div class="typing-instruction">
-            <span style="font-size: 12px; color: #217346; font-weight: bold;">📝 EXCEL TYPING EXERCISE (엑셀 입력 연습)</span><br>
-            <span style="font-size: 11px; color: #666;">위 영문 문장을 아래 셀에 똑같이 입력하세요.</span>
+    <div class="study-card">
+        <div class="card-header">
+            <span id="card-day-label">CHAPTER 1 - DAY 1</span>
+            <span id="progress-text">1 / 20</span>
         </div>
-        <div id="typing-display"></div> <table>
-            <tr><th></th><th>A</th><th>B</th><th>C</th><th>D</th><th>E</th></tr>
-            <tr>
-                <td class="row-num">1</td>
-                <td colspan="5" class="active-cell">
-                    <input type="text" id="typer" class="typing-input" placeholder="Start typing here..." autocomplete="off" autofocus>
-                </td>
-            </tr>
-            <script>
-                for(let i=2; i<=15; i++) { // 더 많은 행을 만들 필요가 없어 줄임
-                    document.write(`<tr><td class="row-num">${i}</td><td></td><td></td><td></td><td></td><td></td></tr>`);
-                }
-            </script>
-        </table>
+        <div class="content-area" onclick="reveal()">
+            <div id="main-text">데이터를 불러오는 중...</div>
+            <div id="sub-text">해석이 여기에 나타납니다.</div>
+        </div>
+        <div class="btn-group">
+            <button class="action-btn" onclick="prev()">이전</button>
+            <button class="action-btn check-btn" onclick="reveal()">정답 확인</button>
+            <button class="action-btn" onclick="next()">다음</button>
+        </div>
     </div>
 </div>
 
+<div class="bg-grid"><table id="grid" class="grid-table"></table></div>
 <div class="status-bar">
-    <div>📊 REPORTING: Current Progress</div>
-    <div id="progress-status">PHRASE <span id="current-num">1</span> OF <span id="total-num">5</span> | MEMORIZED: 0</div>
+    <div>📊 SOURCE: Project Gutenberg (Public Domain)</div>
+    <div id="today-info">Current Selection: Day 1</div>
 </div>
 
 <script>
-    const phrases = [
-        { en: "Cut to the chase.", ko: "바로 본론으로 들어가.", details: "불필요한 얘기는 건너뛰고 핵심만 말하라는 의미입니다. 회의나 대화에서 자주 사용돼요." },
-        { en: "It's a piece of cake.", ko: "그거 식은 죽 먹기야.", details: "아주 쉽다는 뜻으로, 'piece of cake'는 케이크 한 조각처럼 쉽다는 비유입니다." },
-        { en: "Let's play it by ear.", ko: "상황 봐서 결정하자.", details: "미리 계획하기보다 그때그때 상황에 맞춰 유연하게 대처하자는 표현입니다." },
-        { en: "I'm all ears.", ko: "경청하고 있어. (귀 기울여 듣고 있어.)", details: "상대방의 말을 주의 깊게 듣고 있을 때 쓰는 표현으로, '모든 귀가 다 너에게 집중되어 있다'는 뜻입니다." },
-        { en: "No sweat.", ko: "별거 아니야. (걱정 마.)", details: "어렵지 않거나 문제가 되지 않는다는 뜻으로, '땀 흘릴 일도 아니다'라는 비유입니다." },
-        { en: "Hit the road.", ko: "출발하자. (가자.)", details: "어떤 장소를 떠나 여행이나 이동을 시작할 때 사용하는 표현입니다." },
-        { en: "Bite the bullet.", ko: "이를 악물고 참다. (고통을 감내하다.)", details: "어렵거나 불쾌한 상황을 받아들이고 견뎌낼 때 사용합니다." }
+    // 오만과 편견 1~2장 데이터 (총 100문장, Day 1~5)
+    const allData = [
+        // Day 1: 1장 시작
+        { en: "It is a truth universally acknowledged, that a single man in possession of a good fortune, must be in want of a wife.", ko: "재산이 꽤 있는 미혼 남성에게 아내가 필요할 것이라는 점은 보편적으로 인정받는 진리이다." },
+        { en: "However little known the feelings of such a man may be on his first entering a neighbourhood,", ko: "그런 남자가 마을에 처음 들어왔을 때 그의 감정이 어떨지 거의 알려진 바가 없더라도," },
+        { en: "this truth is so well fixed in the minds of the surrounding families,", ko: "이 진리는 주변 가족들의 마음 속에 너무나 확고하게 자리 잡고 있어서," },
+        { en: "that he is considered the rightful property of some one or other of their daughters.", ko: "그 남자는 그들 중 어느 한 집 딸의 정당한 소유물로 여겨진다." },
+        { en: "\"My dear Mr. Bennet,\" said his lady to him one day, \"have you heard that Netherfield Park is let at last?\"", ko: "어느 날 베넷 부인이 남편에게 말했다. \"여보, 베넷 씨, 네더필드 파크가 드디어 임대되었다는 소식 들으셨나요?\"" },
+        { en: "Mr. Bennet replied that he had not.", ko: "베넷 씨는 듣지 못했다고 대답했다." },
+        { en: "\"But it is,\" returned she; \"for Mrs. Long has just been there, and she told me all about it.\"", ko: "\"임대되었대요.\" 그녀가 대꾸했다. \"방금 롱 부인이 거기 다녀왔거든요. 제게 전부 얘기해 줬어요.\"" },
+        { en: "Mr. Bennet made no answer.", ko: "베넷 씨는 아무 대답도 하지 않았다." },
+        { en: "\"Do you not want to know who has taken it?\" cried his wife impatiently.", ko: "\"누가 그 집을 빌렸는지 알고 싶지 않으세요?\" 아내가 참을성 없이 외쳤다." },
+        { en: "\"YOU want to tell me, and I have no objection to hearing it.\"", ko: "\"당신이 말하고 싶어 하니, 들어주는 데 반대하지 않겠소.\"" },
+        { en: "This was invitation enough.", ko: "이것만으로도 충분한 권유가 되었다." },
+        { en: "\"Why, my dear, you must know, Mrs. Long says that Netherfield is taken by a young man of large fortune from the north of England;\"", ko: "\"여보, 롱 부인 말로는 영국 북부에서 온 재산이 아주 많은 젊은이가 네더필드를 빌렸대요.\"" },
+        { en: "that he came down on Monday in a chaise and four to see the place,", ko: "월요일에 말 네 마리가 끄는 마차를 타고 그곳을 보러 내려왔는데," },
+        { en: "and was so much delighted with it, that he agreed with Mr. Morris immediately;\"", ko: "너무 마음에 들어서 즉시 모리스 씨와 합의했다는군요.\"" },
+        { en: "that he is to take possession before Michaelmas,", ko: "미카엘 축일 전에는 입주하기로 했고," },
+        { en: "and some of his servants are to be in the house by the end of next week.\"", ko: "다음 주말까지는 하인 중 몇 명이 먼저 올 거래요.\"" },
+        { en: "\"What is his name?\"", ko: "\"그 사람 이름이 뭐요?\"" },
+        { en: "\"Bingley.\"", ko: "\"빙리래요.\"" },
+        { en: "\"Is he married or single?\"", ko: "\"그가 결혼을 했소, 아니면 미혼이오?\"" },
+        { en: "\"Oh! Single, my dear, to be sure! A single man of large fortune;\"", ko: "\"오! 당연히 미혼이죠! 재산이 아주 많은 미혼남이라니까요.\"" },
+
+        // Day 2
+        { en: "What a fine thing for our girls!", ko: "우리 딸들에게 얼마나 잘된 일이에요!" },
+        { en: "\"How so? How can it affect them?\"", ko: "\"그게 어째서? 딸들에게 무슨 상관이 있단 말이오?\"" },
+        { en: "\"My dear Mr. Bennet,\" replied his wife, \"how can you be so tiresome!\"", ko: "\"어머 베넷 씨,\" 아내가 대답했다. \"어쩜 그렇게 무심하실 수가 있어요!\"" },
+        { en: "\"You must know that I am thinking of his marrying one of them.\"", ko: "\"내가 그 사람과 우리 딸들 중 하나를 결혼시킬 생각을 한다는 걸 아시잖아요.\"" },
+        { en: "\"Is that his design in settling here?\"", ko: "\"그게 그가 여기 정착하는 목적이란 말이오?\"" },
+        { en: "\"Design! Nonsense, how can you talk so!\"", ko: "\"목적이라니요! 말도 안 돼요, 어떻게 그런 말을!\"" },
+        { en: "\"But it is very likely that he MAY fall in love with one of them,\"", ko: "\"하지만 그가 우리 딸들 중 한 명과 사랑에 빠질 가능성은 매우 높잖아요.\"" },
+        { en: "\"therefore you must visit him as soon as he comes.\"", ko: "\"그러니까 그가 오자마자 당신이 방문해야 해요.\"" },
+        { en: "\"I see no occasion for that. You and the girls may go,\"", ko: "\"그럴 필요까진 없을 것 같소. 당신과 딸들이나 가구려.\"" },
+        { en: "\"or you may send them by themselves, which perhaps will be still better,\"", ko: "\"아니면 딸들만 보내든지. 그게 아마 더 나을 거요.\"" },
+        { en: "\"for as you are as handsome as any of them, Mr. Bingley might like you the best of the party.\"", ko: "\"당신도 딸들 못지않게 아름다우니, 빙리 씨가 당신을 제일 좋아할지도 모르지 않소.\"" },
+        { en: "\"My dear, you flatter me. I certainly HAVE had my share of beauty,\"", ko: "\"여보, 비행기 태우지 마세요. 예전엔 한 미모 했었죠.\"" },
+        { en: "\"but I do not pretend to be anything extraordinary now.\"", ko: "\"하지만 지금은 대단하다고 우기지는 않아요.\"" },
+        { en: "\"When a woman has five grown-up daughters, she ought to give over thinking of her own beauty.\"", ko: "\"다 큰 딸이 다섯이나 되면 자기 외모 생각은 그만둬야 하는 법이죠.\"" },
+        { en: "\"In such cases, a woman has not often much beauty to think of.\"", ko: "\"그런 경우에는 외모랄 것도 별로 남아있지 않기 마련이지.\"" },
+        { en: "\"But, my dear, you must indeed go and see Mr. Bingley when he comes into the neighbourhood.\"", ko: "\"하지만 여보, 빙리 씨가 이사 오면 정말 꼭 가서 보셔야 해요.\"" },
+        { en: "\"It is more than I engage for, I assure you.\"", ko: "\"장담컨대 그건 내 소관 밖의 일이오.\"" },
+        { en: "\"But consider your daughters.\"", ko: "\"딸들을 생각해서라도요.\"" },
+        { en: "\"Only think what an establishment it would be for one of them.\"", ko: "\"딸 중 하나가 자리를 잡는 게 얼마나 큰일인지 생각 좀 해보세요.\"" },
+        { en: "\"Sir William and Lady Lucas are determined to go, merely on that account.\"", ko: "\"윌리엄 경과 루카스 부인도 오직 그 때문에 가기로 결정했단 말이에요.\"" }
+        // (이하 Day 3, 4, 5는 동일한 방식으로 100문장까지 채워져 있다고 가정 - 지면상 중략)
     ];
 
-    let currentPhraseIndex = 0;
-    let memorizedCount = 0;
-
-    const englishPhraseEl = document.getElementById('english-phrase');
-    const userTranslationInput = document.getElementById('user-translation');
-    const checkTranslationBtn = document.getElementById('check-translation-btn');
-    const translationFeedbackEl = document.getElementById('translation-feedback');
-    const correctKoEl = document.getElementById('correct-ko');
-    const mistakeFeedbackEl = document.getElementById('mistake-feedback');
-    const typingDisplayEl = document.getElementById('typing-display');
-    const typerInput = document.getElementById('typer');
-    const currentNumEl = document.getElementById('current-num');
-    const totalNumEl = document.getElementById('total-num');
-    const prevBtn = document.getElementById('prevBtn');
-    const nextBtn = document.getElementById('nextBtn');
-    const progressStatusEl = document.getElementById('progress-status');
-
-    totalNumEl.innerText = phrases.length;
-
-    function renderPhrase() {
-        const phrase = phrases[currentPhraseIndex];
-        englishPhraseEl.innerText = phrase.en;
-        userTranslationInput.value = '';
-        translationFeedbackEl.style.display = 'none';
-        typerInput.value = '';
-        updateTypingDisplay();
-        updateNavigationButtons();
-        currentNumEl.innerText = currentPhraseIndex + 1;
+    // 부족한 데이터를 위해 더미 데이터 보충 (실제로는 소설 전문을 20문장씩 끊어 넣으시면 됩니다)
+    while(allData.length < 100) {
+        allData.push({ en: "Classic sentence from Pride and Prejudice continues... [" + allData.length + "]", ko: "오만과 편견의 문장이 계속 이어집니다... [" + allData.length + "]" });
     }
 
-    function updateTypingDisplay() {
-        const target = phrases[currentPhraseIndex].en;
-        const userInput = typerInput.value;
-        let html = '';
-        for (let i = 0; i < target.length; i++) {
-            if (i < userInput.length) {
-                html += `<span class="${userInput[i] === target[i] ? 'char-correct' : 'char-wrong'}">${target[i]}</span>`;
-            } else if (i === userInput.length) {
-                html += `<span class="char-current">${target[i]}</span>`;
-            } else {
-                html += `<span>${target[i]}</span>`;
-            }
-        }
-        typingDisplayEl.innerHTML = html;
-        if (userInput === target) {
-             typingDisplayEl.style.backgroundColor = "#e8f5e9"; // 성공 시 잠시 배경색 변경
-             setTimeout(() => typingDisplayEl.style.backgroundColor = "transparent", 200);
+    let currentDay = 1;
+    let index = 0;
+    let mode = 'learn';
+    let studyData = [];
+
+    // 진도 선택기 생성
+    function createDayButtons() {
+        const selector = document.getElementById('day-selector');
+        const totalDays = Math.ceil(allData.length / 20);
+        for (let i = 1; i <= totalDays; i++) {
+            const btn = document.createElement('button');
+            btn.innerText = `Day ${i}`;
+            btn.className = 'day-btn' + (i === 1 ? ' active' : '');
+            btn.onclick = () => selectDay(i);
+            selector.appendChild(btn);
         }
     }
 
-    function updateNavigationButtons() {
-        prevBtn.disabled = currentPhraseIndex === 0;
-        nextBtn.disabled = currentPhraseIndex === phrases.length - 1 && typerInput.value !== phrases[currentPhraseIndex].en; // 마지막 문장을 다 쳐야 다음 비활성화
+    function selectDay(day) {
+        currentDay = day;
+        index = 0;
+        const btns = document.querySelectorAll('.day-btn');
+        btns.forEach((b, i) => b.className = (i + 1 === day) ? 'day-btn active' : 'day-btn');
+        
+        const start = (day - 1) * 20;
+        studyData = allData.slice(start, start + 20);
+        
+        document.getElementById('card-day-label').innerText = `CHAPTER 1 - DAY ${day}`;
+        document.getElementById('today-info').innerText = `Current Selection: Day ${day}`;
+        update();
     }
 
-    prevBtn.addEventListener('click', () => {
-        if (currentPhraseIndex > 0) {
-            currentPhraseIndex--;
-            renderPhrase();
-        }
-    });
+    function setMode(newMode) {
+        mode = newMode;
+        document.getElementById('learnTab').className = (mode === 'learn') ? 'tab-btn active' : 'tab-btn';
+        document.getElementById('quizTab').className = (mode === 'quiz') ? 'tab-btn active' : 'tab-btn';
+        update();
+    }
 
-    nextBtn.addEventListener('click', () => {
-        // 현재 문장을 다 치지 않으면 넘어가지 못하도록 (암기 효과 증대)
-        if (typerInput.value !== phrases[currentPhraseIndex].en) {
-            alert('먼저 현재 문장을 정확히 입력해야 다음으로 넘어갈 수 있습니다.');
-            return;
-        }
-        if (currentPhraseIndex < phrases.length - 1) {
-            currentPhraseIndex++;
-            renderPhrase();
+    function update() {
+        if(studyData.length === 0) return;
+        const current = studyData[index];
+        const mainText = document.getElementById('main-text');
+        const subText = document.getElementById('sub-text');
+        
+        if (mode === 'learn') {
+            mainText.innerText = current.en;
+            subText.innerText = "💡 해석: " + current.ko;
         } else {
-            alert('모든 문장을 학습하셨습니다! 다음 업데이트를 기대해주세요.');
-            // 모든 문장을 다 외웠을 때 어떤 액션을 할지 여기에 추가
+            mainText.innerText = current.ko;
+            subText.innerText = "⭐ 원문: " + current.en;
         }
-    });
+        
+        subText.style.visibility = 'hidden';
+        document.getElementById('progress-text').innerText = `${index + 1} / ${studyData.length}`;
+    }
 
-    checkTranslationBtn.addEventListener('click', () => {
-        const userTrans = userTranslationInput.value.trim();
-        const correctTrans = phrases[currentPhraseIndex].ko;
-        const details = phrases[currentPhraseIndex].details;
+    function reveal() { document.getElementById('sub-text').style.visibility = 'visible'; }
+    function next() { if (index < studyData.length - 1) { index++; update(); } }
+    function prev() { if (index > 0) { index--; update(); } }
 
-        correctKoEl.innerText = correctTrans;
-        mistakeFeedbackEl.innerText = details || "";
-        translationFeedbackEl.style.display = 'block';
+    // 배경 그리드
+    const grid = document.getElementById('grid');
+    for(let i=0; i<40; i++) {
+        let row = grid.insertRow();
+        for(let j=0; j<12; j++) row.insertCell();
+    }
 
-        // 여기에서 사용자 번역과 정답 번역을 비교하여 차이점을 보여주는 기능을 추가할 수 있습니다.
-        // (ex. 텍스트 유사도 라이브러리 활용)
-    });
-
-    typerInput.addEventListener('input', updateTypingDisplay);
-    typerInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-            const target = phrases[currentPhraseIndex].en;
-            if (typerInput.value === target) {
-                // 문장을 정확히 입력하면 '외웠음'으로 간주하고 상태 업데이트
-                memorizedCount++;
-                progressStatusEl.innerHTML = `PHRASE <span id="current-num">${currentPhraseIndex + 1}</span> OF <span id="total-num">${phrases.length}</span> | MEMORIZED: ${memorizedCount}`;
-                updateNavigationButtons(); // '다음' 버튼 활성화 여부 다시 검사
-            }
-        }
-    });
-
-
-    // 초기 로드
-    renderPhrase();
+    createDayButtons();
+    selectDay(1);
 </script>
 
 </body>
